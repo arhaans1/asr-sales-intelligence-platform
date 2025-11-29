@@ -164,8 +164,7 @@ A comprehensive sales intelligence web application designed for performance mark
 \n**Immediate Optimizations:**
 - Quick wins implementable in 1-2 weeks
 - Specific tactics with expected impact in INR\n- Priority order based on effort vs. impact
-
-**Structural Changes:**
+\n**Structural Changes:**
 - Funnel modifications\n- Offer adjustments
 - Audience targeting shifts
 - Creative strategy changes
@@ -173,7 +172,8 @@ A comprehensive sales intelligence web application designed for performance mark
 **Funnel Type Recommendations:**
 - When current funnel is inappropriate for goals
 - Suggested alternative funnel with reasoning
-- Transition timeline\n- Expected performance difference
+- Transition timeline
+- Expected performance difference
 - Risk factors and mitigation strategies
 
 **Creative & Campaign Structure:**
@@ -324,7 +324,8 @@ cpa = totalAdSpend / closes
 roas = totalRevenue / totalAdSpend
 \n// Average Order Value
 aov = totalRevenue / numberOfOrders
-\n// Reverse Calculations for Projections
+
+// Reverse Calculations for Projections
 requiredCloses = targetRevenue / ticketPrice
 requiredCalls = requiredCloses / (closeRate / 100)
 requiredAttendees = requiredCalls / (showUpRate / 100)
@@ -392,8 +393,7 @@ requiredBudget = requiredLPV * costPerLPV
 - Add unlimited products per prospect
 - Drag-and-drop reordering (optional)
 - Calculate weighted average ticket price across products
-- Calculate blended conversion rate
-- Validate fulfillment capacity constraints
+- Calculate blended conversion rate\n- Validate fulfillment capacity constraints
 - Currency formatting for ticket prices
 
 #### 2.3 Funnel Session Management (Week 5)
@@ -568,5 +568,5 @@ requiredBudget = requiredLPV * costPerLPV
 ## 10. Reference Screenshots
 
 ### Dashboard Views
-- screenshot.png (Image1): Dark mode dashboard with sidebar navigation showing Main Menu (Dashboard, Prospects, Analysis, Reports) and Administration section (User Management, Settings). Main content area displays'Closed Won' metric card with0conversions and 'New Prospect' button in top-right.\n- screenshot.png (Image 2): Light mode variant of the same dashboard layout, demonstrating theme switching capability.
+- screenshot.png (Image1): Dark mode dashboard with sidebar navigation showing Main Menu (Dashboard, Prospects, Analysis, Reports) and Administration section (User Management, Settings). Main content area displays'Closed Won' metric card with 0conversions and 'New Prospect' button in top-right.\n- screenshot.png (Image 2): Light mode variant of the same dashboard layout, demonstrating theme switching capability.
 - screenshot.png (Image 3): Alternate view of dashboard with similar layout structure, showing consistent navigation and metric display patterns.
