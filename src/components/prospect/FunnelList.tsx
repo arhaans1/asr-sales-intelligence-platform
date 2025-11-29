@@ -74,7 +74,7 @@ export function FunnelList({ prospectId, funnels, onUpdate }: FunnelListProps) {
                       <p>Stages: {funnel.stage_count}</p>
                     </div>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex flex-wrap gap-2">
                     <Link to={`/prospects/${prospectId}/funnels/${funnel.id}/metrics`}>
                       <Button variant="default" size="sm">
                         Input Metrics
@@ -88,6 +88,11 @@ export function FunnelList({ prospectId, funnels, onUpdate }: FunnelListProps) {
                     <Link to={`/prospects/${prospectId}/funnels/${funnel.id}/projections`}>
                       <Button variant="secondary" size="sm">
                         Projections
+                      </Button>
+                    </Link>
+                    <Link to={`/prospects/${prospectId}/funnels/${funnel.id}/recommendations`}>
+                      <Button variant="default" size="sm" className="bg-gradient-to-r from-purple-600 to-blue-600">
+                        AI Insights
                       </Button>
                     </Link>
                   </div>
