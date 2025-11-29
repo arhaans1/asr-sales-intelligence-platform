@@ -9,16 +9,14 @@ ASR Media Pro - Sales Intelligence Platform
 A comprehensive sales intelligence web application designed for performance marketing agencies in India. The platform transforms raw funnel metrics into actionable insights during live sales calls, helping sales closers diagnose funnel problems, prescribe solutions, and project outcomes in real-time. It serves as a strategic advisor for analyzing coaching, consulting, agency, and SaaS business funnels.
 
 ### 1.3 Target Market
-- Primary Market: India
-- Currency: INR (₹)
+- Primary Market: India\n- Currency: INR (₹)
 - Industry Focus: Coaches, Consultants, Agencies, SaaS companies
 - Target Users: Sales closers, marketing strategists, agency teams
 
 ## 2. Core Functional Modules
 
 ### 2.1 Authentication & User Management
-- Multi-role authentication system (super_admin, admin, closer)
-- Super Admin capabilities:\n  - Create and manage user accounts
+- Multi-role authentication system (super_admin, admin, closer)\n- Super Admin capabilities:\n  - Create and manage user accounts
   - Assign user roles and permissions
   - View all user activities
 - User-specific data isolation
@@ -26,10 +24,10 @@ A comprehensive sales intelligence web application designed for performance mark
 - Password reset functionality
 - NextAuth.js with credentials provider
 
-### 2.2 Prospect Management\n- Complete CRUD operations for prospects
+### 2.2 Prospect Management
+- Complete CRUD operations for prospects
 - Prospect Information Fields:
-  - Business name
-  - Contact name
+  - Business name\n  - Contact name
   - Industry vertical (Coach/Consultant/Agency/SaaS)
   - Niche description
   - Current monthly revenue (₹)
@@ -39,19 +37,19 @@ A comprehensive sales intelligence web application designed for performance mark
 - Status tracking: active, closed_won, closed_lost, archived
 - Search and filter functionality
 - Prospect history tracking
-
-### 2.3 Product Stack Management (Dynamic)
+\n### 2.3 Product Stack Management (Dynamic)
 - Add multiple products per prospect
 - Product Fields:
-  - Product name\n  - Product type (Course/Coaching/Service/Software)
+  - Product name
+  - Product type (Course/Coaching/Service/Software)
   - Ticket price (₹)
   - Delivery method (1:1/Group/Self-Paced/Hybrid)
   - Fulfillment capacity (clients per month)
   - Current conversion rate (if known)
-- Mark primary product
-- Calculate blended metrics across multiple products
+- Mark primary product\n- Calculate blended metrics across multiple products
 
-### 2.4 Funnel Configuration\n- Funnel Type Selection (Dropdown):
+### 2.4 Funnel Configuration
+- Funnel Type Selection (Dropdown):
   1. 1:1 Sales Call Funnel
   2. Live Webinar Funnel
   3. Automated Webinar Funnel
@@ -62,7 +60,8 @@ A comprehensive sales intelligence web application designed for performance mark
 - Custom stage naming capability
 - Funnel stage count configuration
 
-### 2.5 Metrics Input Dashboard\n\n#### Traffic Metrics (Auto-calculated fields marked with *):
+### 2.5 Metrics Input Dashboard
+\n#### Traffic Metrics (Auto-calculated fields marked with *):
 - Daily/Monthly Ad Spend (₹)
 - Impressions
 - Reach
@@ -73,19 +72,22 @@ A comprehensive sales intelligence web application designed for performance mark
 - Cost Per Landing Page View (₹)*
 - Traffic Source Breakdown (optional)
 
-#### Conversion Metrics:\n- Total Registrations/Leads
-- Registration Rate (%)*
+#### Conversion Metrics:
+- Total Registrations/Leads
+- Registration Rate(%)*
 - Cost Per Lead (₹)*
 - Qualified Leads (if applicable)
 - Cost Per Qualified Lead (₹)*
 - Lead Quality Score (1-10 subjective input)
 \n#### Engagement Metrics (Funnel-Specific):
 - Show-Ups/Attendees
-- Show-Up Rate (%)*\n- Cost Per Attendee (₹)*
+- Show-Up Rate (%)*
+- Cost Per Attendee (₹)*
 - Engagement Score (for challenges/workshops)
 - Completion Rate (for challenges/workshops)
 - Replay Views (for webinars)
-\n#### Sales Metrics:
+
+#### Sales Metrics:
 - Sales Calls Booked
 - Sales Calls Completed
 - Proposals/Offers Made
@@ -101,13 +103,14 @@ A comprehensive sales intelligence web application designed for performance mark
 - Application → Booked Call: 55-75%
 - Show-Up Rate: 50-70%
 - Close Rate: 15-25% (Industry avg: 20%)
-
-**Webinar Funnel:**
-- Registration Rate: 30-50%\n- Show-Up Rate (Live): 20-35%
+\n**Webinar Funnel:**
+- Registration Rate: 30-50%
+- Show-Up Rate (Live): 20-35%
 - Show-Up Rate (Automated): 10-25%
 - Pitch to Application: 3-10%
 - Application to Close: 8-15% (Industry avg: 10%)
-\n**Challenge/Bootcamp Funnel:**
+
+**Challenge/Bootcamp Funnel:**
 - Registration Rate: 35-55%
 - Day 1 Show-Up: 35-50%
 - Day 5Retention: 10-22%
@@ -138,15 +141,16 @@ A comprehensive sales intelligence web application designed for performance mark
 \n### 2.7 Projection Calculator
 
 #### Reverse-Engineering Logic:
-- Input: Target revenue (₹), Ticket price (₹)
-- Calculate using India-specific conversion rates:\n  - Required sales/closes
+- Input: Target revenue (₹), Ticket price (₹)\n- Calculate using India-specific conversion rates:\n  - Required sales/closes
   - Required sales calls
   - Required show-ups/attendees
   - Required registrations
   - Required landing page views
-  - Required clicks\n  - Required budget (₹)
+  - Required clicks
+  - Required budget (₹)
   - Projected ROAS
-\n#### What-If Scenarios:
+
+#### What-If Scenarios:
 - Interactive slider controls to adjust assumptions
 - Real-time recalculation\n- Side-by-side scenario comparison
 - Gap percentage display (current vs required)
@@ -157,9 +161,9 @@ A comprehensive sales intelligence web application designed for performance mark
 \n#### Recommendation Categories:
 \n**Immediate Optimizations:**
 - Quick wins implementable in 1-2 weeks
-- Specific tactics with expected impact in INR
-- Priority order based on effort vs. impact
-\n**Structural Changes:**
+- Specific tactics with expected impact in INR\n- Priority order based on effort vs. impact
+
+**Structural Changes:**
 - Funnel modifications\n- Offer adjustments
 - Audience targeting shifts
 - Creative strategy changes
@@ -167,7 +171,8 @@ A comprehensive sales intelligence web application designed for performance mark
 **Funnel Type Recommendations:**
 - When current funnel is inappropriate for goals
 - Suggested alternative funnel with reasoning
-- Transition timeline\n- Expected performance difference
+- Transition timeline
+- Expected performance difference
 - Risk factors and mitigation strategies
 
 **Creative & Campaign Structure:**
@@ -199,7 +204,8 @@ A comprehensive sales intelligence web application designed for performance mark
 - Export to PDF/Doc
 
 ### 2.10 Visualization Dashboard
-\n#### Chart Types (using Recharts):
+
+#### Chart Types (using Recharts):
 \n**Funnel Visualization:**
 - Stage-by-stage flow with drop-off percentages
 - Comparison to benchmark funnel
@@ -238,7 +244,8 @@ A comprehensive sales intelligence web application designed for performance mark
 - Framework: Next.js 14 (App Router)
 - Language: TypeScript
 - Styling: Tailwind CSS
-- Component Library: shadcn/ui\n- Charts: Recharts
+- Component Library: shadcn/ui
+- Charts: Recharts
 - State Management: Zustand
 - Forms: React Hook Form + Zod validation
 - Animation: Framer Motion (optional)
@@ -295,14 +302,16 @@ A comprehensive sales intelligence web application designed for performance mark
 ## 5. Key Calculations Reference
 
 ```typescript
-// All monetary values in INR\n\n// Registration Rate\nregistrationRate = (registrations / landingPageViews) * 100
+// All monetary values in INR
+\n// Registration Rate\nregistrationRate = (registrations / landingPageViews) * 100
 
 // Cost Per Lead
 costPerLead = totalAdSpend / totalRegistrations
 
 // Show-up Rate
 showUpRate = (attendees / registrations) * 100
-\n// Cost Per Attendee\ncostPerAttendee = totalAdSpend / attendees
+\n// Cost Per Attendee
+costPerAttendee = totalAdSpend / attendees
 
 // Close Rate
 closeRate = (closes / salesCalls) * 100
@@ -314,8 +323,7 @@ cpa = totalAdSpend / closes
 roas = totalRevenue / totalAdSpend
 \n// Average Order Value
 aov = totalRevenue / numberOfOrders
-
-// Reverse Calculations for Projections
+\n// Reverse Calculations for Projections
 requiredCloses = targetRevenue / ticketPrice
 requiredCalls = requiredCloses / (closeRate / 100)
 requiredAttendees = requiredCalls / (showUpRate / 100)
@@ -326,27 +334,151 @@ requiredBudget = requiredLPV * costPerLPV
 
 ## 6. Implementation Roadmap
 
-### Phase 1: Foundation (Weeks 1-3)
+### Phase 1: Foundation (Weeks 1-3)✅ COMPLETED
 - Set up Next.js 14 project with TypeScript, Tailwind CSS, shadcn/ui
 - Configure Prisma with PostgreSQL\n- Implement NextAuth.js authentication system
 - Create super admin panel for user management
 - Build basic layout with sidebar navigation and header
 - Set up role-based access control
 
-### Phase 2: Core Features (Weeks 4-6)
-- Prospect CRUD operations with search/filter
-- Product stack management (dynamic add/edit/delete)
-- Funnel session management (save/load/name)
-- Metrics input forms with auto-calculations
-- Currency formatting (INR with Indian number system)
-- Form validation with Zod schemas
-\n### Phase 3: Analysis Engine (Weeks 7-9)\n- Gap analysis with India-specific benchmarks
+### Phase 2: Core Features (Weeks 4-6) 🚀 CURRENT PHASE
+\n#### 2.1 Prospect Management Module (Week 4)
+**Database Schema:**
+- Create Prospect model in Prisma schema with all required fields
+- Set up relationships with User model (creator/owner)
+- Add indexes for search optimization
+\n**API Routes:**
+- POST /api/prospects - Create new prospect
+- GET /api/prospects - List all prospects (with pagination, search, filters)
+- GET /api/prospects/[id] - Get single prospect details
+- PATCH /api/prospects/[id] - Update prospect
+- DELETE /api/prospects/[id] - Soft delete prospect
+
+**UI Components:**
+- Prospects list page with data table (sortable, filterable)
+- New prospect form modal with validation
+- Edit prospect form\n- Prospect detail view
+- Search bar with debounced input
+- Status filter dropdown (active/closed_won/closed_lost/archived)\n- Industry vertical filter
+- Delete confirmation dialog
+
+**Features:**
+- Real-time search across business name, contact name, niche
+- Multi-column sorting\n- Status badge indicators with color coding
+- Revenue display in INR format (₹X,XX,XXX)
+- Empty state for no prospects
+- Loading skeletons during data fetch
+
+#### 2.2 Product Stack Management (Week 5)
+**Database Schema:**
+- Create Product model with prospect relationship (one-to-many)
+- Fields: name, type, ticketPrice, deliveryMethod, fulfillmentCapacity, conversionRate, isPrimary
+- Cascade delete on prospect removal
+\n**API Routes:**
+- POST /api/prospects/[id]/products - Add product to prospect
+- GET /api/prospects/[id]/products - List all products for prospect
+- PATCH /api/products/[id] - Update product\n- DELETE /api/products/[id] - Delete product
+- PATCH /api/products/[id]/set-primary - Mark as primary product
+
+**UI Components:**
+- Product list within prospect detail page
+- Add product form with dynamic fields
+- Product card display with edit/delete actions
+- Primary product indicator (star icon or badge)
+- Blended metrics calculator display
+
+**Features:**\n- Add unlimited products per prospect
+- Drag-and-drop reordering (optional)
+- Calculate weighted average ticket price across products
+- Calculate blended conversion rate
+- Validate fulfillment capacity constraints
+- Currency formatting for ticket prices
+
+#### 2.3 Funnel Session Management (Week 5)
+**Database Schema:**
+- Create FunnelSession model\n- Fields: name, prospectId, funnelType, createdAt, updatedAt, isActive
+- Relationship with Prospect (one-to-many)
+\n**API Routes:**
+- POST /api/prospects/[id]/sessions - Create new session
+- GET /api/prospects/[id]/sessions - List all sessions\n- PATCH /api/sessions/[id] - Update session name
+- DELETE /api/sessions/[id] - Delete session\n- POST /api/sessions/[id]/duplicate - Duplicate session
+
+**UI Components:**
+- Session tabs within prospect analysis view
+- New session modal with name input
+- Session dropdown selector
+- Rename session inline edit
+- Session history sidebar
+
+**Features:**\n- Auto-save session data every 30 seconds
+- Session naming with timestamps
+- Switch between sessions without data loss
+- Session duplication for comparison
+- Last modified timestamp display
+
+#### 2.4 Metrics Input Forms (Week 6)
+**Database Schema:**
+- Create FunnelMetrics model linked to FunnelSession
+- Separate tables for TrafficMetrics, ConversionMetrics, EngagementMetrics, SalesMetrics
+- Store both input values and calculated values
+
+**API Routes:**
+- POST /api/sessions/[id]/metrics - Save metrics
+- GET /api/sessions/[id]/metrics - Retrieve metrics
+- PATCH /api/sessions/[id]/metrics - Update specific metric fields
+\n**UI Components:**
+- Multi-step form wizard for metrics input
+- Collapsible sections for each metric category
+- Input fields with INR currency formatting
+- Percentage input fields with validation
+- Auto-calculated field displays (read-only, highlighted)
+- Progress indicator showing completion percentage
+
+**Features:**
+- Real-time auto-calculations as user types
+- Field dependencies (e.g., CTR = Clicks / Impressions * 100)
+- Validation rules (no negative numbers, percentage0-100)
+- Conditional fields based on funnel type
+- Save draft functionality
+- Clear all button with confirmation
+
+#### 2.5 Currency Formatting (INR) (Week 6)
+**Implementation:**
+- Create utility function for Indian number system formatting
+- Support both standard (₹1,23,456) and lakhs/crores notation
+- Implement across all monetary displays
+\n**Features:**
+- Automatic comma placement (Indian style: X,XX,XXX)
+- Currency symbol prefix (₹)
+- Decimal handling (2 decimal places for precision)
+- Large number abbreviation (optional: 1.5L, 2.3Cr)
+- Input masking for currency fields
+
+#### 2.6 Form Validation with Zod (Week 6)\n**Implementation:**
+- Define Zod schemas for all forms
+- Integrate with React Hook Form
+- Custom validation rules for business logic
+\n**Validation Rules:**
+- Required field validation
+- Email format validation
+- Phone number format (Indian:10 digits)\n- Numeric range validation (e.g., conversion rate 0-100%)
+- Currency value validation (positive numbers only)
+- Cross-field validation (target revenue > current revenue)
+- Custom error messages in user-friendly language
+
+**UI Features:**
+- Inline error messages below fields
+- Error summary at form top
+- Field-level validation on blur
+- Form-level validation on submit
+- Disabled submit button until form is valid
+
+### Phase 3: Analysis Engine (Weeks 7-9)\n- Gap analysis with India-specific benchmarks
 - Benchmark comparison logic with color-coding
 - Projection calculator with reverse-engineering
 - What-if scenario tool with sliders
 - Funnel visualization chart\n- Comparison charts (current vs benchmark vs target)
-
-### Phase 4: AI Integration (Weeks 10-11)
+\n### Phase 4: AI Integration (Weeks 10-11)
 - Claude API integration\n- Prompt engineering with India market context
 - Recommendation engine implementation
 - Funnel advisor feature
@@ -389,7 +521,7 @@ requiredBudget = requiredLPV * costPerLPV
 - Session recovery on unexpected disconnects
 - Data export capabilities for backup
 \n### 7.3 Performance Requirements
-- Page load time< 2 seconds
+- Page load time < 2 seconds
 - Chart rendering < 1 second
 - LLM response time < 10 seconds
 - Real-time auto-calculations (< 100ms)
@@ -407,8 +539,7 @@ requiredBudget = requiredLPV * costPerLPV
 - Close rate improvement (track before/after)
 - Proposal acceptance rate increase
 - Average deal size growth
-- Closer satisfaction score (1-10)
-
+- Closer satisfaction score (1-10)\n
 ### 8.2 Usage Metrics
 - Daily active users
 - Sessions per user per day
@@ -431,3 +562,9 @@ requiredBudget = requiredLPV * costPerLPV
 - Mobile native apps (iOS/Android)
 - White-label capabilities for agency partners
 - Advanced AI features (predictive analytics, anomaly detection)
+
+## 10. Reference Screenshots
+
+### Dashboard Views
+- screenshot.png (Image1): Dark mode dashboard with sidebar navigation showing Main Menu (Dashboard, Prospects, Analysis, Reports) and Administration section (User Management, Settings). Main content area displays'Closed Won' metric card with0conversions and 'New Prospect' button in top-right.\n- screenshot.png (Image 2): Light mode variant of the same dashboard layout, demonstrating theme switching capability.
+- screenshot.png (Image 3): Alternate view of dashboard with similar layout structure, showing consistent navigation and metric display patterns.

@@ -24,11 +24,12 @@
 - [x] 2.5: Add logout functionality
 
 ### Phase 3: Core Layout & Navigation
-- [x] 3.1: Design dark theme color system in index.css
+- [x] 3.1: Design light theme color system in index.css (white + blue)
 - [x] 3.2: Create main layout with collapsible sidebar
 - [x] 3.3: Create header with user profile and notifications
 - [x] 3.4: Set up routing structure
-- [x] 3.5: Create dashboard home page
+- [x] 3.5: Create dashboard home page with StatCard component
+- [x] 3.6: Fix text cropping issue in dashboard cards
 
 ### Phase 4: Prospect Management
 - [x] 4.1: Create prospects list page with search/filter
@@ -50,12 +51,12 @@
 - [x] 6.4: Save funnel configurations
 
 ### Phase 7: Metrics Input Dashboard
-- [ ] 7.1: Create traffic metrics input form
-- [ ] 7.2: Create conversion metrics input form
-- [ ] 7.3: Create engagement metrics input form
-- [ ] 7.4: Create sales metrics input form
-- [ ] 7.5: Implement auto-calculations for derived metrics
-- [ ] 7.6: Add INR currency formatting
+- [x] 7.1: Create traffic metrics input form
+- [x] 7.2: Create conversion metrics input form
+- [x] 7.3: Create engagement metrics input form
+- [x] 7.4: Create sales metrics input form
+- [x] 7.5: Implement auto-calculations for derived metrics
+- [x] 7.6: Add INR currency formatting
 
 ### Phase 8: Gap Analysis Engine
 - [x] 8.1: Define India-specific benchmarks for all funnel types

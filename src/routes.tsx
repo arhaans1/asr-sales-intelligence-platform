@@ -4,6 +4,7 @@ import Dashboard from './pages/Dashboard';
 import Prospects from './pages/Prospects';
 import ProspectForm from './pages/ProspectForm';
 import ProspectDetail from './pages/ProspectDetail';
+import MetricsInput from './pages/MetricsInput';
 import UserManagement from './pages/admin/UserManagement';
 import Login from './pages/Login';
 
@@ -52,6 +53,11 @@ export const protectedRoutes: RouteConfig[] = [
     name: 'Prospect Detail',
     path: '/prospects/:id',
     element: <ProspectDetail />,
+  },
+  {
+    name: 'Metrics Input',
+    path: '/prospects/:prospectId/funnels/:funnelId/metrics',
+    element: <MetricsInput />,
   },
   {
     name: 'User Management',
