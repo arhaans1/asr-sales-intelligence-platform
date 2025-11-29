@@ -1,4 +1,3 @@
-```typescript
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import routes from "../../routes";
@@ -16,36 +15,34 @@ const Header: React.FC = () => {
               {/* Please replace with your website logo */}
               <img
                 className="h-8 w-auto"
-                src={`https://miaoda-site-img.cdn.bcebos.com/placeholder/code_logo_default.png`}
-alt = "Website logo"
-  />
-  {/* Please replace with your website name */ }
-  < span className = "ml-2 text-xl font-bold text-blue-600" >
-    Website Name
-              </span >
-            </Link >
-          </div >
+                src="https://miaoda-site-img.cdn.bcebos.com/placeholder/code_logo_default.png"
+                alt="Website logo"
+              />
+              {/* Please replace with your website name */}
+              <span className="ml-2 text-xl font-bold text-blue-600">
+                Website Name
+              </span>
+            </Link>
+          </div>
 
-  {/* When there's only one page, you can remove the entire navigation section */ }
-  < div className = "hidden md:flex items-center space-x-8" >
-  {
-    navigation.map((item) => (
-      <Link
-        key={item.path}
-        to={item.path}
-        className={`px-3 py-2 text-base font-medium rounded-md ${location.pathname === item.path
-            ? "text-blue-600 bg-blue-50"
-            : "text-gray-700 hover:text-blue-600 hover:bg-gray-50"
-          } transition duration-300`}
-      >
-        {item.name}
-      </Link>
-    ))
-  }
-          </div >
-        </div >
-      </nav >
-    </header >
+          {/* When there's only one page, you can remove the entire navigation section */}
+          <div className="hidden md:flex items-center space-x-8">
+            {navigation.map((item) => (
+              <Link
+                key={item.path}
+                to={item.path}
+                className={`px-3 py-2 text-base font-medium rounded-md ${location.pathname === item.path
+                    ? "text-blue-600 bg-blue-50"
+                    : "text-gray-700 hover:text-blue-600 hover:bg-gray-50"
+                  } transition duration-300`}
+              >
+                {item.name}
+              </Link>
+            ))}
+          </div>
+        </div>
+      </nav>
+    </header>
   );
 };
 
