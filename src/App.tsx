@@ -8,7 +8,7 @@ import { MainLayout } from './components/layout/MainLayout';
 
 function App() {
   return (
-    <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
+    <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
       <Router>
         <AuthProvider client={supabase}>
           <Toaster />
