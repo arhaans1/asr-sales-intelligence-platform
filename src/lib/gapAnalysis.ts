@@ -11,7 +11,7 @@ export interface MetricComparison {
   benchmarkMin: number;
   benchmarkMax: number;
   benchmarkAvg: number;
-
+  variance: number; // Percentage difference from benchmark average
   status: IndicatorStatus;
   priority: Priority;
   isBottleneck: boolean;
@@ -62,7 +62,6 @@ function getPriority(variance: number, isBottleneck: boolean): Priority {
  */
 function getRecommendation(
   metricName: string,
-  variance: number,
   status: IndicatorStatus
 ): string {
   if (status === 'excellent' || status === 'good') {
@@ -121,7 +120,7 @@ export function analyzeGap(metrics: Metrics, funnel: Funnel): GapAnalysisResult 
       priority: getPriority(variance, false),
       isBottleneck: variance < -20,
       isOpportunity: variance > 20,
-      recommendation: getRecommendation('Registration Rate', variance, status),
+      recommendation: getRecommendation('Registration Rate', status),
     });
   }
 
@@ -144,7 +143,7 @@ export function analyzeGap(metrics: Metrics, funnel: Funnel): GapAnalysisResult 
       priority: getPriority(variance, false),
       isBottleneck: variance < -20,
       isOpportunity: variance > 20,
-      recommendation: getRecommendation('Show-Up Rate', variance, status),
+      recommendation: getRecommendation('Show-Up Rate', status),
     });
   }
 
@@ -167,7 +166,7 @@ export function analyzeGap(metrics: Metrics, funnel: Funnel): GapAnalysisResult 
       priority: getPriority(variance, false),
       isBottleneck: variance < -20,
       isOpportunity: variance > 20,
-      recommendation: getRecommendation('Close Rate', variance, status),
+      recommendation: getRecommendation('Close Rate', status),
     });
   }
 
@@ -189,7 +188,7 @@ export function analyzeGap(metrics: Metrics, funnel: Funnel): GapAnalysisResult 
       priority: getPriority(variance, false),
       isBottleneck: variance < -30,
       isOpportunity: variance > 30,
-      recommendation: getRecommendation('CTR', variance, status),
+      recommendation: getRecommendation('CTR', status),
     });
   }
 
@@ -211,7 +210,7 @@ export function analyzeGap(metrics: Metrics, funnel: Funnel): GapAnalysisResult 
       priority: getPriority(variance, false),
       isBottleneck: metrics.cost_per_lead > benchmarkAvg * 1.5,
       isOpportunity: metrics.cost_per_lead < benchmarkAvg * 0.7,
-      recommendation: getRecommendation('Cost Per Lead', variance, status),
+      recommendation: getRecommendation('Cost Per Lead', status),
     });
   }
 
@@ -233,7 +232,7 @@ export function analyzeGap(metrics: Metrics, funnel: Funnel): GapAnalysisResult 
       priority: getPriority(variance, true),
       isBottleneck: variance < -30,
       isOpportunity: variance > 30,
-      recommendation: getRecommendation('ROAS', variance, status),
+      recommendation: getRecommendation('ROAS', status),
     });
   }
 
