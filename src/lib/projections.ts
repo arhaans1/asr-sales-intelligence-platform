@@ -1,4 +1,4 @@
-import type { Prospect, Funnel, Metrics } from '@/types/database';
+import type { Funnel } from '@/types/database';
 import { FUNNEL_BENCHMARKS } from '@/lib/benchmarks';
 
 export interface ProjectionInputs {

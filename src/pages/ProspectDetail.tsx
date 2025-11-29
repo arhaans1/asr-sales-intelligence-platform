@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { prospectsApi, productsApi, funnelsApi } from '@/services/api';
 import type { Prospect, Product, Funnel } from '@/types/database';
-import { ArrowLeft, Building2, Mail, Phone, Globe, MapPin, Calendar, DollarSign, Target, Briefcase, Users, TrendingUp } from 'lucide-react';
+import { ArrowLeft, Edit } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { formatINR } from '@/lib/utils';
 import { ProductList } from '@/components/prospect/ProductList';

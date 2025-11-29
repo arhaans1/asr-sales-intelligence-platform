@@ -28,7 +28,7 @@ export default function GapAnalysis() {
   const loadData = async () => {
     try {
       setLoading(true);
-      
+
       const [prospectData, funnelData, metricsData] = await Promise.all([
         prospectsApi.getById(prospectId!),
         funnelsApi.getById(funnelId!),
@@ -37,12 +37,12 @@ export default function GapAnalysis() {
 
       setProspect(prospectData);
       setFunnel(funnelData);
-      
+
       // Get the first metrics record (or null if none exists)
-      const metricsRecord = Array.isArray(metricsData) && metricsData.length > 0 
-        ? metricsData[0] 
+      const metricsRecord = Array.isArray(metricsData) && metricsData.length > 0
+        ? metricsData[0]
         : null;
-      
+
       setMetrics(metricsRecord);
 
       // Perform gap analysis if we have metrics
@@ -178,11 +178,11 @@ export default function GapAnalysis() {
               {analysis.overallHealth.toUpperCase()}
             </Badge>
             <div className="flex-1">
-              <Progress 
+              <Progress
                 value={
                   analysis.overallHealth === 'excellent' ? 100 :
-                  analysis.overallHealth === 'good' ? 75 :
-                  analysis.overallHealth === 'warning' ? 50 : 25
+                    analysis.overallHealth === 'good' ? 75 :
+                      analysis.overallHealth === 'warning' ? 50 : 25
                 }
                 className="h-3"
               />
@@ -204,7 +204,7 @@ export default function GapAnalysis() {
               </Badge>
             </div>
             <div className="text-sm">
-              <span className="font-medium">Current:</span> {analysis.primaryBottleneck.currentValue.toFixed(2)}% | 
+              <span className="font-medium">Current:</span> {analysis.primaryBottleneck.currentValue.toFixed(2)}% |
               <span className="font-medium ml-2">Benchmark:</span> {analysis.primaryBottleneck.benchmarkMin.toFixed(2)}% - {analysis.primaryBottleneck.benchmarkMax.toFixed(2)}%
             </div>
             <p className="text-sm mt-2">{analysis.primaryBottleneck.recommendation}</p>
@@ -275,7 +275,7 @@ export default function GapAnalysis() {
                 </div>
               </div>
 
-              <Progress 
+              <Progress
                 value={Math.min(100, Math.max(0, ((comparison.currentValue - comparison.benchmarkMin) / (comparison.benchmarkMax - comparison.benchmarkMin)) * 100))}
                 className="h-2 mb-2"
               />
@@ -304,7 +304,7 @@ export default function GapAnalysis() {
                 <div>
                   <p className="font-medium text-green-900">{opp.metricName}</p>
                   <p className="text-sm text-green-700">
-                    {opp.currentValue.toFixed(2)}% (Benchmark: {opp.benchmarkAvg.toFixed(2)}%)
+                    {opp.currentValue.toFixed(2)}{opp.metricKey.includes('rate') || opp.metricKey === 'ctr' ? '%' : ''} (Benchmark: {opp.benchmarkAvg.toFixed(2)}{opp.metricKey.includes('rate') || opp.metricKey === 'ctr' ? '%' : ''})
                   </p>
                 </div>
                 <Badge className="bg-green-600">

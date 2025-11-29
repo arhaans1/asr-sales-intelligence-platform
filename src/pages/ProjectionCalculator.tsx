@@ -1,16 +1,23 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Skeleton } from '@/components/ui/skeleton';
-import { ArrowLeft, Calculator, TrendingUp, Target } from 'lucide-react';
-import { prospectsApi, funnelsApi, productsApi, metricsApi } from '@/services/api';
-import type { Prospect, Funnel, Product, Metrics } from '@/types/database';
-import { calculateProjections, createScenarios, calculateTimeline, type ProjectionInputs, type ProjectionResult, type ScenarioComparison } from '@/lib/projections';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+
+import { Calculator, TrendingUp, ArrowLeft, Target } from 'lucide-react';
+import { prospectsApi, funnelsApi, metricsApi } from '@/services/api';
+import type { Prospect, Funnel, Metrics } from '@/types/database';
+import { calculateProjections, createScenarios, type ProjectionInputs, type ProjectionResult, type ScenarioComparison } from '@/lib/projections';
 import { formatINR } from '@/lib/utils';
 
 export default function ProjectionCalculator() {

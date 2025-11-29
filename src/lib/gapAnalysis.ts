@@ -1,4 +1,4 @@
-import { GapAnalysisResult, MetricGap, FunnelHealth } from '@/types/analysis';
+import { GapAnalysisResult } from '@/types/analysis';
 import { FUNNEL_BENCHMARKS } from '@/lib/benchmarks';
 
 export type IndicatorStatus = 'excellent' | 'good' | 'warning' | 'critical' | 'unknown';

@@ -119,7 +119,7 @@ const Map = ({
     };
 }) => {
     const mapRef = useRef<HTMLDivElement>(null);
-    const currentRef = useRef(null);
+    const currentRef = useRef<any>(null); // Changed type to any to accommodate BMapGL.Map
 
     const _options = useMemo(() => {
         return { ...defaultOption, ...option };
@@ -137,7 +137,7 @@ const Map = ({
 
         let map = currentRef.current;
 
-        if (!map) {
+        if (!map) { // Original condition was `if (!map)`
             // Create map instance
             map = new (window as any).BMapGL.Map(mapRef.current);
             currentRef.current = map;
