@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 import type { Funnel } from '@/types/database';
 import { FunnelDialog } from './FunnelDialog';
+import ExportButton from './ExportButton';
 
 interface FunnelListProps {
   prospectId: string;
@@ -100,6 +101,7 @@ export function FunnelList({ prospectId, funnels, onUpdate }: FunnelListProps) {
                         AI Insights
                       </Button>
                     </Link>
+                    <ExportButton prospectId={prospectId} funnelId={funnel.id} />
                   </div>
                 </div>
               ))}

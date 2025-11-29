@@ -107,10 +107,10 @@
 - [x] 13.4: Implement auto-save every 30 seconds
 
 ### Phase 14: Export Features
-- [ ] 14.1: Implement PDF export functionality
-- [ ] 14.2: Create professional report templates
-- [ ] 14.3: Add ASR Media Pro branding
-- [ ] 14.4: Include all charts and recommendations in export
+- [x] 14.1: Implement PDF export functionality
+- [x] 14.2: Create professional report templates
+- [x] 14.3: Add ASR Media Pro branding
+- [x] 14.4: Include all charts and recommendations in export
 
 ### Phase 15: Polish & Testing
 - [ ] 15.1: Refine UI/UX with animations
