@@ -37,7 +37,8 @@ A comprehensive sales intelligence web application designed for performance mark
 - Status tracking: active, closed_won, closed_lost, archived
 - Search and filter functionality
 - Prospect history tracking
-\n### 2.3 Product Stack Management (Dynamic)
+
+### 2.3 Product Stack Management (Dynamic)
 - Add multiple products per prospect
 - Product Fields:
   - Product name
@@ -67,7 +68,8 @@ A comprehensive sales intelligence web application designed for performance mark
 - Reach
 - CPM (₹)
 - Clicks (Link Clicks vs All Clicks)
-- CTR (%)* \n- CPC (₹)*
+- CTR (%)*
+- CPC (₹)*
 - Landing Page Views
 - Cost Per Landing Page View (₹)*
 - Traffic Source Breakdown (optional)
@@ -171,8 +173,7 @@ A comprehensive sales intelligence web application designed for performance mark
 **Funnel Type Recommendations:**
 - When current funnel is inappropriate for goals
 - Suggested alternative funnel with reasoning
-- Transition timeline
-- Expected performance difference
+- Transition timeline\n- Expected performance difference
 - Risk factors and mitigation strategies
 
 **Creative & Campaign Structure:**
@@ -387,7 +388,8 @@ requiredBudget = requiredLPV * costPerLPV
 - Primary product indicator (star icon or badge)
 - Blended metrics calculator display
 
-**Features:**\n- Add unlimited products per prospect
+**Features:**
+- Add unlimited products per prospect
 - Drag-and-drop reordering (optional)
 - Calculate weighted average ticket price across products
 - Calculate blended conversion rate
