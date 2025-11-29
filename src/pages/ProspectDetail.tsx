@@ -11,6 +11,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { formatINR } from '@/lib/utils';
 import { ProductList } from '@/components/prospect/ProductList';
 import { FunnelList } from '@/components/prospect/FunnelList';
+import NotesSection from '@/components/prospect/NotesSection';
 
 export default function ProspectDetail() {
   const { id } = useParams();
@@ -165,6 +166,7 @@ export default function ProspectDetail() {
         <TabsList>
           <TabsTrigger value="products">Products ({products.length})</TabsTrigger>
           <TabsTrigger value="funnels">Funnels ({funnels.length})</TabsTrigger>
+          <TabsTrigger value="notes">Notes</TabsTrigger>
           <TabsTrigger value="analysis">Analysis</TabsTrigger>
         </TabsList>
 
@@ -174,6 +176,10 @@ export default function ProspectDetail() {
 
         <TabsContent value="funnels" className="space-y-4">
           <FunnelList prospectId={id!} funnels={funnels} onUpdate={loadData} />
+        </TabsContent>
+
+        <TabsContent value="notes" className="space-y-4">
+          <NotesSection prospectId={id!} />
         </TabsContent>
 
         <TabsContent value="analysis" className="space-y-4">
