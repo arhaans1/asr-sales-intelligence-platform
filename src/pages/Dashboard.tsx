@@ -7,6 +7,7 @@ import type { Prospect } from '@/types/database';
 import { Users, TrendingUp, Target, Plus } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { StatCard } from '@/components/dashboard/StatCard';
+import { animationClasses, transitionClasses } from '@/lib/animations';
 
 export default function Dashboard() {
   const [prospects, setProspects] = useState<Prospect[]>([]);
@@ -50,7 +51,7 @@ export default function Dashboard() {
         </Link>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div className={`grid gap-4 md:grid-cols-2 lg:grid-cols-3 ${animationClasses.fadeIn}`}>
         {loading ? (
           <>
             <Skeleton className="h-32 w-full bg-muted" />
@@ -59,24 +60,30 @@ export default function Dashboard() {
           </>
         ) : (
           <>
-            <StatCard
-              title="Total Prospects"
-              value={prospects.length}
-              description={`${activeProspects} active`}
-              icon={<Users className="h-4 w-4" />}
-            />
-            <StatCard
-              title="Closed Won"
-              value={closedWon}
-              description={`${prospects.length > 0 ? ((closedWon / prospects.length) * 100).toFixed(1) : 0}% conversion rate`}
-              icon={<Target className="h-4 w-4" />}
-            />
-            <StatCard
-              title="Total Revenue"
-              value={`₹${(totalRevenue / 100000).toFixed(2)}L`}
-              description="Target monthly revenue"
-              icon={<TrendingUp className="h-4 w-4" />}
-            />
+            <div className={animationClasses.slideUp} style={{ animationDelay: '0ms' }}>
+              <StatCard
+                title="Total Prospects"
+                value={prospects.length}
+                description={`${activeProspects} active`}
+                icon={<Users className="h-4 w-4" />}
+              />
+            </div>
+            <div className={animationClasses.slideUp} style={{ animationDelay: '100ms' }}>
+              <StatCard
+                title="Closed Won"
+                value={closedWon}
+                description={`${prospects.length > 0 ? ((closedWon / prospects.length) * 100).toFixed(1) : 0}% conversion rate`}
+                icon={<Target className="h-4 w-4" />}
+              />
+            </div>
+            <div className={animationClasses.slideUp} style={{ animationDelay: '200ms' }}>
+              <StatCard
+                title="Total Revenue"
+                value={`₹${(totalRevenue / 100000).toFixed(2)}L`}
+                description="Target monthly revenue"
+                icon={<TrendingUp className="h-4 w-4" />}
+              />
+            </div>
           </>
         )}
       </div>
