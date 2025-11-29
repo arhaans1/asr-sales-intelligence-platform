@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardAction } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { prospectsApi } from '@/services/api';
 import type { Prospect } from '@/types/database';
 import { Users, TrendingUp, Target, Plus } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { StatCard } from '@/components/dashboard/StatCard';
 
 export default function Dashboard() {
   const [prospects, setProspects] = useState<Prospect[]>([]);
@@ -50,70 +51,34 @@ export default function Dashboard() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        <Card>
-          <CardHeader>
-            <CardTitle>Total Prospects</CardTitle>
-            <CardAction>
-              <Users className="h-4 w-4 text-muted-foreground" />
-            </CardAction>
-          </CardHeader>
-          <CardContent>
-            {loading ? (
-              <Skeleton className="h-8 w-20 bg-muted" />
-            ) : (
-              <>
-                <div className="text-2xl font-bold">{prospects.length}</div>
-                <p className="text-xs text-muted-foreground mt-1">
-                  {activeProspects} active
-                </p>
-              </>
-            )}
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Closed Won</CardTitle>
-            <CardAction>
-              <Target className="h-4 w-4 text-muted-foreground" />
-            </CardAction>
-          </CardHeader>
-          <CardContent>
-            {loading ? (
-              <Skeleton className="h-8 w-20 bg-muted" />
-            ) : (
-              <>
-                <div className="text-2xl font-bold">{closedWon}</div>
-                <p className="text-xs text-muted-foreground mt-1">
-                  {prospects.length > 0 ? ((closedWon / prospects.length) * 100).toFixed(1) : 0}% conversion rate
-                </p>
-              </>
-            )}
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Total Revenue</CardTitle>
-            <CardAction>
-              <TrendingUp className="h-4 w-4 text-muted-foreground" />
-            </CardAction>
-          </CardHeader>
-          <CardContent>
-            {loading ? (
-              <Skeleton className="h-8 w-32 bg-muted" />
-            ) : (
-              <>
-                <div className="text-2xl font-bold">
-                  ₹{(totalRevenue / 100000).toFixed(2)}L
-                </div>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Target monthly revenue
-                </p>
-              </>
-            )}
-          </CardContent>
-        </Card>
+        {loading ? (
+          <>
+            <Skeleton className="h-32 w-full bg-muted" />
+            <Skeleton className="h-32 w-full bg-muted" />
+            <Skeleton className="h-32 w-full bg-muted" />
+          </>
+        ) : (
+          <>
+            <StatCard
+              title="Total Prospects"
+              value={prospects.length}
+              description={`${activeProspects} active`}
+              icon={<Users className="h-4 w-4" />}
+            />
+            <StatCard
+              title="Closed Won"
+              value={closedWon}
+              description={`${prospects.length > 0 ? ((closedWon / prospects.length) * 100).toFixed(1) : 0}% conversion rate`}
+              icon={<Target className="h-4 w-4" />}
+            />
+            <StatCard
+              title="Total Revenue"
+              value={`₹${(totalRevenue / 100000).toFixed(2)}L`}
+              description="Target monthly revenue"
+              icon={<TrendingUp className="h-4 w-4" />}
+            />
+          </>
+        )}
       </div>
 
       <Card>
