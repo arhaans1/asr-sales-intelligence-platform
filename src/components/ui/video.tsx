@@ -24,14 +24,6 @@ import {
 } from 'video-react';
 import 'video-react/dist/video-react.css';
 
-interface FullScreenToggleProps {
-    actions: {
-        toggleFullscreen: (player: any) => void;
-    };
-    player: {
-        isFullscreen: boolean;
-    };
-}
 interface VideoProps {
     /** Video resource URL */
     src: string;

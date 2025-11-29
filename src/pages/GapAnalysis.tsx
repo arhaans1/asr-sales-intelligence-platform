@@ -304,7 +304,7 @@ export default function GapAnalysis() {
                 <div>
                   <p className="font-medium text-green-900">{opp.metricName}</p>
                   <p className="text-sm text-green-700">
-                    {opp.currentValue.toFixed(2)}{opp.metricKey.includes('rate') || opp.metricKey === 'ctr' ? '%' : ''} (Benchmark: {opp.benchmarkAvg.toFixed(2)}{opp.metricKey.includes('rate') || opp.metricKey === 'ctr' ? '%' : ''})
+                    {opp.currentValue.toFixed(2)}{String(opp.metricKey).includes('rate') || opp.metricKey === 'ctr' ? '%' : ''} (Benchmark: {opp.benchmarkAvg.toFixed(2)}{String(opp.metricKey).includes('rate') || opp.metricKey === 'ctr' ? '%' : ''})
                   </p>
                 </div>
                 <Badge className="bg-green-600">

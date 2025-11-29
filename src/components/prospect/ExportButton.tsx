@@ -40,12 +40,12 @@ export default function ExportButton({ prospectId, funnelId }: ExportButtonProps
 
       // Export to PDF
       if (prospect && funnel) {
-        const filename = `${prospect.business_name}_${funnel.funnel_name}_report.pdf`;
+
         exportToPDF({
           prospectName: prospect.business_name,
-          funnelName: funnel.funnel_name,
+          funnelName: funnel.funnel_name || 'Funnel',
           metrics,
-          filename,
+
         });
       } else {
         throw new Error('Prospect or Funnel data missing');
