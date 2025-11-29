@@ -124,7 +124,7 @@ ${gapAnalysis.primaryBottleneck ? `  - Variance: ${gapAnalysis.primaryBottleneck
 ${gapAnalysis.secondaryIssues.map(issue => `- ${issue.metricName}: ${issue.variance.toFixed(1)}% ${issue.variance < 0 ? 'below' : 'above'} benchmark`).join('\n')}
 
 **Opportunities:**
-${gapAnalysis.opportunities.map(opp => `- ${opp.metricName}: ${opp.variance.toFixed(1)}% above benchmark`).join('\n')}
+${gapAnalysis.opportunities.map(opp => `- ${opp.metricName}: ${opp.variance.toFixed(1)}% ${opp.variance < 0 ? 'below' : 'above'} benchmark`).join('\n')}
 
 **Instructions:**
 Provide recommendations in the following JSON format:

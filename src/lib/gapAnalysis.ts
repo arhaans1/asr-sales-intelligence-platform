@@ -195,7 +195,7 @@ export function analyzeGap(metrics: Metrics, funnel: Funnel): GapAnalysisResult 
   // Cost Per Lead
   if (metrics.cost_per_lead > 0 && metrics.ad_spend > 0) {
     const benchmarkAvg = 150; // Average CPL in INR for India
-    const variance = ((benchmarkAvg - metrics.cost_per_lead) / benchmarkAvg) * 100;
+    const variance = ((metrics.cost_per_lead - benchmarkAvg) / benchmarkAvg) * 100;
     const status = getStatus(variance, false);
 
     comparisons.push({
@@ -205,7 +205,7 @@ export function analyzeGap(metrics: Metrics, funnel: Funnel): GapAnalysisResult 
       benchmarkMin: 80,
       benchmarkMax: 250,
       benchmarkAvg,
-      variance: -variance, // Invert for display (negative is bad)
+      variance,
       status,
       priority: getPriority(variance, false),
       isBottleneck: metrics.cost_per_lead > benchmarkAvg * 1.5,

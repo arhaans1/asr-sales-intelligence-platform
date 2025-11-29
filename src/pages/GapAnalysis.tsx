@@ -232,11 +232,17 @@ export default function GapAnalysis() {
                 <div className="text-right">
                   <div className="flex items-center gap-1">
                     {comparison.variance > 0 ? (
-                      <TrendingUp className="h-4 w-4 text-green-600" />
+                      <TrendingUp className={`h-4 w-4 ${comparison.status === 'excellent' || comparison.status === 'good' ? 'text-green-600' :
+                        comparison.status === 'warning' ? 'text-yellow-600' : 'text-red-600'
+                        }`} />
                     ) : (
-                      <TrendingDown className="h-4 w-4 text-red-600" />
+                      <TrendingDown className={`h-4 w-4 ${comparison.status === 'excellent' || comparison.status === 'good' ? 'text-green-600' :
+                        comparison.status === 'warning' ? 'text-yellow-600' : 'text-red-600'
+                        }`} />
                     )}
-                    <span className="font-semibold">
+                    <span className={`font-semibold ${comparison.status === 'excellent' || comparison.status === 'good' ? 'text-green-600' :
+                      comparison.status === 'warning' ? 'text-yellow-600' : 'text-red-600'
+                      }`}>
                       {comparison.variance > 0 ? '+' : ''}{comparison.variance.toFixed(1)}%
                     </span>
                   </div>
@@ -303,7 +309,7 @@ export default function GapAnalysis() {
                   </p>
                 </div>
                 <Badge className="bg-green-600">
-                  +{opp.variance.toFixed(1)}%
+                  {opp.variance > 0 ? '+' : ''}{opp.variance.toFixed(1)}%
                 </Badge>
               </div>
             ))}
