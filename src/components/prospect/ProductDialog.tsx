@@ -56,7 +56,7 @@ export function ProductDialog({ open, onClose, onSuccess, prospectId, product }:
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   const form = useForm<ProductFormData>({
-    resolver: zodResolver(productSchema),
+    resolver: zodResolver(productSchema) as any,
     defaultValues: {
       product_name: '',
       product_type: 'Course',

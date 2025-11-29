@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -30,7 +30,7 @@ export default function AIRecommendations() {
   const loadData = async () => {
     try {
       setLoading(true);
-      
+
       const [prospectData, funnelData, productsData, metricsData] = await Promise.all([
         prospectsApi.getById(prospectId!),
         funnelsApi.getById(funnelId!),
@@ -41,11 +41,11 @@ export default function AIRecommendations() {
       setProspect(prospectData);
       setFunnel(funnelData);
       setProducts(Array.isArray(productsData) ? productsData : []);
-      
-      const metricsRecord = Array.isArray(metricsData) && metricsData.length > 0 
-        ? metricsData[0] 
+
+      const metricsRecord = Array.isArray(metricsData) && metricsData.length > 0
+        ? metricsData[0]
         : null;
-      
+
       setMetrics(metricsRecord);
     } catch (error) {
       console.error('Failed to load data:', error);

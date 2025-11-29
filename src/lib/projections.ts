@@ -1,4 +1,4 @@
-import type { Funnel, Product } from '@/types/database';
+import type { Prospect, Funnel, Metrics } from '@/types/database';
 import { FUNNEL_BENCHMARKS } from '@/lib/benchmarks';
 
 export interface ProjectionInputs {
@@ -64,28 +64,28 @@ export function calculateProjections(
   const benchmarks = FUNNEL_BENCHMARKS[funnel.funnel_type as keyof typeof FUNNEL_BENCHMARKS];
 
   // Use provided values or fall back to benchmarks or current metrics
-  const closeRate = inputs.closeRate || 
-    currentMetrics?.closeRate || 
+  const closeRate = inputs.closeRate ||
+    currentMetrics?.closeRate ||
     (benchmarks?.close_rate?.average || 20);
 
-  const showUpRate = inputs.showUpRate || 
-    currentMetrics?.showUpRate || 
+  const showUpRate = inputs.showUpRate ||
+    currentMetrics?.showUpRate ||
     (benchmarks?.show_up_rate?.average || 60);
 
-  const registrationRate = inputs.registrationRate || 
-    currentMetrics?.registrationRate || 
+  const registrationRate = inputs.registrationRate ||
+    currentMetrics?.registrationRate ||
     (benchmarks?.registration_rate?.average || 40);
 
-  const ctr = inputs.ctr || 
-    currentMetrics?.ctr || 
+  const ctr = inputs.ctr ||
+    currentMetrics?.ctr ||
     1.5; // Default CTR for India
 
-  const costPerClick = inputs.costPerClick || 
-    currentMetrics?.cpc || 
+  const costPerClick = inputs.costPerClick ||
+    currentMetrics?.cpc ||
     15; // Default CPC in INR
 
-  const costPerLead = inputs.costPerLead || 
-    currentMetrics?.costPerLead || 
+  const costPerLead = inputs.costPerLead ||
+    currentMetrics?.costPerLead ||
     150; // Default CPL in INR
 
   // Reverse calculations

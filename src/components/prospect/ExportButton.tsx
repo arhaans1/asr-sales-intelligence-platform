@@ -17,7 +17,7 @@ export default function ExportButton({ prospectId, funnelId }: ExportButtonProps
   const handleExport = async () => {
     try {
       setLoading(true);
-      
+
       // Fetch all necessary data
       const [prospect, funnel, metricsData] = await Promise.all([
         prospectsApi.getById(prospectId),
@@ -25,8 +25,8 @@ export default function ExportButton({ prospectId, funnelId }: ExportButtonProps
         metricsApi.getByFunnelId(funnelId),
       ]);
 
-      const metrics = Array.isArray(metricsData) && metricsData.length > 0 
-        ? metricsData[0] 
+      const metrics = Array.isArray(metricsData) && metricsData.length > 0
+        ? metricsData[0]
         : null;
 
       if (!metrics) {
@@ -39,11 +39,15 @@ export default function ExportButton({ prospectId, funnelId }: ExportButtonProps
       }
 
       // Export to PDF
-      exportToPDF({
-        prospectName: prospect.business_name,
-        funnelName: funnel.funnel_name,
-        metrics,
-      });
+      if (prospect && funnel) {
+        exportToPDF({
+          prospectName: prospect.business_name,
+          funnelName: funnel.funnel_name,
+          metrics,
+        });
+      } else {
+        throw new Error('Prospect or Funnel data missing');
+      }
 
       toast({
         title: 'Success',

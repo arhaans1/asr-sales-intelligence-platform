@@ -7,7 +7,7 @@ import type { Prospect } from '@/types/database';
 import { Users, TrendingUp, Target, Plus } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { StatCard } from '@/components/dashboard/StatCard';
-import { animationClasses, transitionClasses } from '@/lib/animations';
+import { animationClasses } from '@/lib/animations';
 
 export default function Dashboard() {
   const [prospects, setProspects] = useState<Prospect[]>([]);

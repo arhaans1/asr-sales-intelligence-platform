@@ -1,8 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
 import {
   Dialog,
   DialogContent,
@@ -65,7 +63,7 @@ export default function SessionManager({ prospectId, funnelId, onSessionLoad }: 
 
     try {
       setSaving(true);
-      
+
       // Collect current state data
       const sessionData = {
         timestamp: new Date().toISOString(),
@@ -103,12 +101,12 @@ export default function SessionManager({ prospectId, funnelId, onSessionLoad }: 
     if (onSessionLoad) {
       onSessionLoad(session);
     }
-    
+
     toast({
       title: 'Session Loaded',
       description: `Loaded session: ${session.session_name}`,
     });
-    
+
     setLoadDialogOpen(false);
   };
 

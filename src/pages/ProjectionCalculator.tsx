@@ -19,7 +19,6 @@ export default function ProjectionCalculator() {
   const [loading, setLoading] = useState(true);
   const [prospect, setProspect] = useState<Prospect | null>(null);
   const [funnel, setFunnel] = useState<Funnel | null>(null);
-  const [products, setProducts] = useState<Product[]>([]);
   const [metrics, setMetrics] = useState<Metrics | null>(null);
 
   // Projection inputs
@@ -41,35 +40,25 @@ export default function ProjectionCalculator() {
   const loadData = async () => {
     try {
       setLoading(true);
-      
-      const [prospectData, funnelData, productsData, metricsData] = await Promise.all([
+
+      const [prospectData, funnelData, metricsData] = await Promise.all([
         prospectsApi.getById(prospectId!),
         funnelsApi.getById(funnelId!),
-        productsApi.getByProspectId(prospectId!),
         metricsApi.getByFunnelId(funnelId!),
       ]);
 
       setProspect(prospectData);
       setFunnel(funnelData);
-      setProducts(Array.isArray(productsData) ? productsData : []);
-      
-      const metricsRecord = Array.isArray(metricsData) && metricsData.length > 0 
-        ? metricsData[0] 
+
+      const metricsRecord = Array.isArray(metricsData) && metricsData.length > 0
+        ? metricsData[0]
         : null;
-      
+
       setMetrics(metricsRecord);
 
-      // Initialize with prospect's target revenue and primary product price
-      if (prospectData.target_monthly_revenue) {
+      // Initialize with prospect's target revenue
+      if (prospectData?.target_monthly_revenue) {
         setTargetRevenue(prospectData.target_monthly_revenue);
-      }
-
-      const primaryProduct = Array.isArray(productsData) 
-        ? productsData.find(p => p.is_primary) || productsData[0]
-        : null;
-      
-      if (primaryProduct?.ticket_price) {
-        setTicketPrice(primaryProduct.ticket_price);
       }
 
       // Initialize with current metrics if available
@@ -132,18 +121,22 @@ export default function ProjectionCalculator() {
 
   if (loading) {
     return (
-      <div className="space-y-6">
-        <Skeleton className="h-10 w-96 bg-muted" />
-        <div className="grid gap-6 md:grid-cols-2">
-          <Skeleton className="h-96 bg-muted" />
-          <Skeleton className="h-96 bg-muted" />
-        </div>
+      <div className="flex h-[50vh] items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      </div>
+    );
+  }
+
+  if (!prospect) {
+    return (
+      <div className="flex h-[50vh] items-center justify-center">
+        <p>No prospect data found. Please select a prospect.</p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-in fade-in duration-500">
       {/* Header */}
       <div className="flex items-center gap-4">
         <Button

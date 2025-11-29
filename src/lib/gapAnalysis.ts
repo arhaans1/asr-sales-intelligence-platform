@@ -1,5 +1,5 @@
-import type { Metrics, Funnel } from '@/types/database';
-import { FUNNEL_BENCHMARKS, type FunnelBenchmarks } from '@/lib/benchmarks';
+import { GapAnalysisResult, MetricGap, FunnelHealth } from '@/types/analysis';
+import { FUNNEL_BENCHMARKS } from '@/lib/benchmarks';
 
 export type IndicatorStatus = 'excellent' | 'good' | 'warning' | 'critical' | 'unknown';
 export type Priority = 'high' | 'medium' | 'low';
@@ -87,7 +87,7 @@ function getRecommendation(
  */
 export function analyzeGap(metrics: Metrics, funnel: Funnel): GapAnalysisResult {
   const benchmarks = FUNNEL_BENCHMARKS[funnel.funnel_type as keyof typeof FUNNEL_BENCHMARKS];
-  
+
   if (!benchmarks) {
     return {
       funnelType: funnel.funnel_type,
@@ -108,7 +108,7 @@ export function analyzeGap(metrics: Metrics, funnel: Funnel): GapAnalysisResult 
     const benchmarkAvg = benchmark.average;
     const variance = ((metrics.registration_rate - benchmarkAvg) / benchmarkAvg) * 100;
     const status = getStatus(variance);
-    
+
     comparisons.push({
       metricName: 'Registration Rate',
       metricKey: 'registration_rate',
@@ -131,7 +131,7 @@ export function analyzeGap(metrics: Metrics, funnel: Funnel): GapAnalysisResult 
     const benchmarkAvg = benchmark.average;
     const variance = ((metrics.show_up_rate - benchmarkAvg) / benchmarkAvg) * 100;
     const status = getStatus(variance);
-    
+
     comparisons.push({
       metricName: 'Show-Up Rate',
       metricKey: 'show_up_rate',
@@ -154,7 +154,7 @@ export function analyzeGap(metrics: Metrics, funnel: Funnel): GapAnalysisResult 
     const benchmarkAvg = benchmark.average;
     const variance = ((metrics.close_rate - benchmarkAvg) / benchmarkAvg) * 100;
     const status = getStatus(variance);
-    
+
     comparisons.push({
       metricName: 'Close Rate',
       metricKey: 'close_rate',
@@ -176,7 +176,7 @@ export function analyzeGap(metrics: Metrics, funnel: Funnel): GapAnalysisResult 
     const benchmarkAvg = 1.5; // Industry average for India
     const variance = ((metrics.ctr - benchmarkAvg) / benchmarkAvg) * 100;
     const status = getStatus(variance);
-    
+
     comparisons.push({
       metricName: 'CTR',
       metricKey: 'ctr',
@@ -198,7 +198,7 @@ export function analyzeGap(metrics: Metrics, funnel: Funnel): GapAnalysisResult 
     const benchmarkAvg = 150; // Average CPL in INR for India
     const variance = ((benchmarkAvg - metrics.cost_per_lead) / benchmarkAvg) * 100;
     const status = getStatus(variance, false);
-    
+
     comparisons.push({
       metricName: 'Cost Per Lead',
       metricKey: 'cost_per_lead',
@@ -220,7 +220,7 @@ export function analyzeGap(metrics: Metrics, funnel: Funnel): GapAnalysisResult 
     const benchmarkAvg = 3.0; // Target ROAS
     const variance = ((metrics.roas - benchmarkAvg) / benchmarkAvg) * 100;
     const status = getStatus(variance);
-    
+
     comparisons.push({
       metricName: 'ROAS',
       metricKey: 'roas',

@@ -73,6 +73,7 @@
     "@tailwindcss/container-queries": "^0.1.1",
     "@types/lodash": "^4.17.20",
     "@types/react": "^19.2.2",
+    "@types/qrcode": "^1.5.5",
     "@types/react-dom": "^19.2.2",
     "@types/video-react": "^0.15.8",
     "@typescript/native-preview": "7.0.0-dev.20251103.1",

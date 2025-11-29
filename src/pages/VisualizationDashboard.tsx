@@ -10,8 +10,6 @@ import { formatINR } from '@/lib/utils';
 import {
   BarChart,
   Bar,
-  LineChart,
-  Line,
   PieChart,
   Pie,
   Cell,
@@ -43,7 +41,7 @@ export default function VisualizationDashboard() {
   const loadData = async () => {
     try {
       setLoading(true);
-      
+
       const [prospectData, funnelData, metricsData] = await Promise.all([
         prospectsApi.getById(prospectId!),
         funnelsApi.getById(funnelId!),
@@ -52,11 +50,11 @@ export default function VisualizationDashboard() {
 
       setProspect(prospectData);
       setFunnel(funnelData);
-      
-      const metricsRecord = Array.isArray(metricsData) && metricsData.length > 0 
-        ? metricsData[0] 
+
+      const metricsRecord = Array.isArray(metricsData) && metricsData.length > 0
+        ? metricsData[0]
         : null;
-      
+
       setMetrics(metricsRecord);
     } catch (error) {
       console.error('Failed to load data:', error);
