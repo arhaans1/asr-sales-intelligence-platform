@@ -12,6 +12,7 @@ import { formatINR } from '@/lib/utils';
 import { ProductList } from '@/components/prospect/ProductList';
 import { FunnelList } from '@/components/prospect/FunnelList';
 import NotesSection from '@/components/prospect/NotesSection';
+import SessionManager from '@/components/prospect/SessionManager';
 
 export default function ProspectDetail() {
   const { id } = useParams();
@@ -100,12 +101,15 @@ export default function ProspectDetail() {
             </p>
           </div>
         </div>
-        <Link to={`/prospects/${id}/edit`}>
-          <Button>
-            <Edit className="mr-2 h-4 w-4" />
-            Edit Prospect
-          </Button>
-        </Link>
+        <div className="flex items-center gap-2">
+          <SessionManager prospectId={id!} />
+          <Link to={`/prospects/${id}/edit`}>
+            <Button>
+              <Edit className="mr-2 h-4 w-4" />
+              Edit Prospect
+            </Button>
+          </Link>
+        </div>
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">
