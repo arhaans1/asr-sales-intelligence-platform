@@ -51,11 +51,7 @@ export default function VisualizationDashboard() {
       setProspect(prospectData);
       setFunnel(funnelData);
 
-      const metricsRecord = Array.isArray(metricsData) && metricsData.length > 0
-        ? metricsData[0]
-        : null;
-
-      setMetrics(metricsRecord);
+      setMetrics(metricsData);
     } catch (error) {
       console.error('Failed to load data:', error);
     } finally {

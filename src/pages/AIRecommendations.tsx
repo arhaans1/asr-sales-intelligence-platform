@@ -42,11 +42,7 @@ export default function AIRecommendations() {
       setFunnel(funnelData);
       setProducts(Array.isArray(productsData) ? productsData : []);
 
-      const metricsRecord = Array.isArray(metricsData) && metricsData.length > 0
-        ? metricsData[0]
-        : null;
-
-      setMetrics(metricsRecord);
+      setMetrics(metricsData);
     } catch (error) {
       console.error('Failed to load data:', error);
       setError('Failed to load data. Please try again.');

@@ -51,11 +51,7 @@ export default function ProjectionCalculator() {
       setProspect(prospectData);
       setFunnel(funnelData);
 
-      const metricsRecord = Array.isArray(metricsData) && metricsData.length > 0
-        ? metricsData[0]
-        : null;
-
-      setMetrics(metricsRecord);
+      setMetrics(metricsData);
 
       // Initialize with prospect's target revenue
       if (prospectData?.target_monthly_revenue) {
@@ -63,12 +59,12 @@ export default function ProjectionCalculator() {
       }
 
       // Initialize with current metrics if available
-      if (metricsRecord) {
-        if (metricsRecord.close_rate > 0) setCloseRate(metricsRecord.close_rate);
-        if (metricsRecord.show_up_rate > 0) setShowUpRate(metricsRecord.show_up_rate);
-        if (metricsRecord.registration_rate > 0) setRegistrationRate(metricsRecord.registration_rate);
-        if (metricsRecord.ctr > 0) setCtr(metricsRecord.ctr);
-        if (metricsRecord.cpc > 0) setCostPerClick(metricsRecord.cpc);
+      if (metricsData) {
+        if (metricsData.close_rate > 0) setCloseRate(metricsData.close_rate);
+        if (metricsData.show_up_rate > 0) setShowUpRate(metricsData.show_up_rate);
+        if (metricsData.registration_rate > 0) setRegistrationRate(metricsData.registration_rate);
+        if (metricsData.ctr > 0) setCtr(metricsData.ctr);
+        if (metricsData.cpc > 0) setCostPerClick(metricsData.cpc);
       }
     } catch (error) {
       console.error('Failed to load data:', error);

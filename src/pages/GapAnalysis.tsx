@@ -38,16 +38,11 @@ export default function GapAnalysis() {
       setProspect(prospectData);
       setFunnel(funnelData);
 
-      // Get the first metrics record (or null if none exists)
-      const metricsRecord = Array.isArray(metricsData) && metricsData.length > 0
-        ? metricsData[0]
-        : null;
-
-      setMetrics(metricsRecord);
+      setMetrics(metricsData);
 
       // Perform gap analysis if we have metrics
-      if (metricsRecord && funnelData) {
-        const analysisResult = analyzeGap(metricsRecord, funnelData);
+      if (metricsData && funnelData) {
+        const analysisResult = analyzeGap(metricsData, funnelData);
         setAnalysis(analysisResult);
       }
     } catch (error) {
