@@ -11,7 +11,7 @@ export interface MetricComparison {
   benchmarkMin: number;
   benchmarkMax: number;
   benchmarkAvg: number;
-  variance: number; // Percentage difference from benchmark average
+
   status: IndicatorStatus;
   priority: Priority;
   isBottleneck: boolean;
