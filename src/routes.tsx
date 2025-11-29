@@ -6,6 +6,7 @@ import ProspectForm from './pages/ProspectForm';
 import ProspectDetail from './pages/ProspectDetail';
 import MetricsInput from './pages/MetricsInput';
 import GapAnalysis from './pages/GapAnalysis';
+import ProjectionCalculator from './pages/ProjectionCalculator';
 import UserManagement from './pages/admin/UserManagement';
 import Login from './pages/Login';
 
@@ -64,6 +65,11 @@ export const protectedRoutes: RouteConfig[] = [
     name: 'Gap Analysis',
     path: '/prospects/:prospectId/funnels/:funnelId/gap-analysis',
     element: <GapAnalysis />,
+  },
+  {
+    name: 'Projection Calculator',
+    path: '/prospects/:prospectId/funnels/:funnelId/projections',
+    element: <ProjectionCalculator />,
   },
   {
     name: 'User Management',

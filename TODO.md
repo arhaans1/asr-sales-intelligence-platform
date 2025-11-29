@@ -67,11 +67,11 @@
 - [x] 8.6: Create gap analysis display component
 
 ### Phase 9: Projection Calculator
-- [ ] 9.1: Implement reverse-engineering logic
-- [ ] 9.2: Create projection calculator UI
-- [ ] 9.3: Add what-if scenario tool with sliders
-- [ ] 9.4: Implement side-by-side scenario comparison
-- [ ] 9.5: Display gap percentages (current vs required)
+- [x] 9.1: Implement reverse-engineering logic
+- [x] 9.2: Create projection calculator UI
+- [x] 9.3: Add what-if scenario tool with sliders
+- [x] 9.4: Implement side-by-side scenario comparison
+- [x] 9.5: Display gap percentages (current vs required)
 
 ### Phase 10: AI Recommendations (LLM Integration)
 - [ ] 10.1: Set up LLM API integration (Gemini 2.5 Flash)

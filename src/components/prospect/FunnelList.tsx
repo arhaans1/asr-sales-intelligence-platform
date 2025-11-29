@@ -85,6 +85,11 @@ export function FunnelList({ prospectId, funnels, onUpdate }: FunnelListProps) {
                         Gap Analysis
                       </Button>
                     </Link>
+                    <Link to={`/prospects/${prospectId}/funnels/${funnel.id}/projections`}>
+                      <Button variant="secondary" size="sm">
+                        Projections
+                      </Button>
+                    </Link>
                   </div>
                 </div>
               ))}
