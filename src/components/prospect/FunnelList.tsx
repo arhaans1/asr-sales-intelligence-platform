@@ -80,6 +80,11 @@ export function FunnelList({ prospectId, funnels, onUpdate }: FunnelListProps) {
                         Input Metrics
                       </Button>
                     </Link>
+                    <Link to={`/prospects/${prospectId}/funnels/${funnel.id}/visualizations`}>
+                      <Button variant="outline" size="sm">
+                        Visualizations
+                      </Button>
+                    </Link>
                     <Link to={`/prospects/${prospectId}/funnels/${funnel.id}/gap-analysis`}>
                       <Button variant="outline" size="sm">
                         Gap Analysis

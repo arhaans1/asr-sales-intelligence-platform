@@ -8,6 +8,7 @@ import MetricsInput from './pages/MetricsInput';
 import GapAnalysis from './pages/GapAnalysis';
 import ProjectionCalculator from './pages/ProjectionCalculator';
 import AIRecommendations from './pages/AIRecommendations';
+import VisualizationDashboard from './pages/VisualizationDashboard';
 import UserManagement from './pages/admin/UserManagement';
 import Login from './pages/Login';
 
@@ -76,6 +77,11 @@ export const protectedRoutes: RouteConfig[] = [
     name: 'AI Recommendations',
     path: '/prospects/:prospectId/funnels/:funnelId/recommendations',
     element: <AIRecommendations />,
+  },
+  {
+    name: 'Visualization Dashboard',
+    path: '/prospects/:prospectId/funnels/:funnelId/visualizations',
+    element: <VisualizationDashboard />,
   },
   {
     name: 'User Management',
