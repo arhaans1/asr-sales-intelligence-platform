@@ -43,6 +43,7 @@ interface QuestionnaireData {
 export function SalesDataForm({ prospect, onUpdate }: SalesDataFormProps) {
     const [loading, setLoading] = useState(false);
     const [sessionId, setSessionId] = useState<string | null>(null);
+    const [calculatedStats, setCalculatedStats] = useState<any>(null);
 
     const form = useForm<QuestionnaireData>({
         defaultValues: {
@@ -68,7 +69,6 @@ export function SalesDataForm({ prospect, onUpdate }: SalesDataFormProps) {
         },
     });
 
-    // Watch fields for calculations
     const values = form.watch();
 
     useEffect(() => {
@@ -92,13 +92,65 @@ export function SalesDataForm({ prospect, onUpdate }: SalesDataFormProps) {
                         current_monthly_revenue: prospect.current_monthly_revenue,
                         target_monthly_revenue: prospect.target_monthly_revenue,
                     });
+
+                    // Also trigger calculation if data exists
+                    calculateStats(data);
                 }
-            } else {
-                // We will create one on save
             }
         } catch (error) {
             console.error('Error loading session data:', error);
         }
+    };
+
+    const calculateStats = (data: QuestionnaireData) => {
+        const totalLeads = Number(data.total_leads) || 0;
+        const totalCalls = Number(data.total_calls) || 0;
+        const totalSales = Number(data.total_sales) || 0;
+        const currentRev = Number(data.current_monthly_revenue) || 0;
+        const targetRev = Number(data.target_monthly_revenue) || 0;
+        const adSpend = Number(data.monthly_ad_spend) || 0;
+
+        // 1. Attendance Rate
+        const attendanceRate = totalLeads > 0 ? (totalCalls / totalLeads) : 0;
+
+        // 2. Sales Conversion Rate (Sales / Attendees)
+        const salesConvRate = totalCalls > 0 ? (totalSales / totalCalls) : 0;
+
+        // AOV (Derived)
+        const aov = totalSales > 0 ? currentRev / totalSales : 0;
+
+        // 3. Sales needed to hit target
+        // If AOV is 0, we can't project.
+        const salesNeededForTarget = aov > 0 ? Math.ceil(targetRev / aov) : 0;
+
+        // 4. Ad Spend Required
+        // CPA = AdSpend / Sales
+        const cpa = totalSales > 0 ? adSpend / totalSales : 0;
+        const adSpendRequiredRaw = salesNeededForTarget * cpa;
+        const adSpendRequiredWithBuffer = adSpendRequiredRaw * 1.2; // 20% buffer
+
+        // 5. 50% Attendance Rate Scenario
+        let scenarioAdSpend = 0;
+        let scenarioSalesNeeded = salesNeededForTarget;
+
+        if (attendanceRate < 0.5 && aov > 0 && salesConvRate > 0) {
+            const targetScenarioRate = 0.5;
+            const leadsNeededScenario = scenarioSalesNeeded / (targetScenarioRate * salesConvRate);
+            const cpl = totalLeads > 0 ? adSpend / totalLeads : 0;
+            const adSpendRawScenario = leadsNeededScenario * cpl;
+            scenarioAdSpend = adSpendRawScenario * 1.2; // Buffer
+        } else {
+            scenarioAdSpend = adSpendRequiredWithBuffer;
+        }
+
+        setCalculatedStats({
+            attendanceRate,
+            salesConvRate,
+            salesNeededForTarget,
+            adSpendRequiredWithBuffer,
+            scenarioAdSpend,
+            isLowAttendance: attendanceRate < 0.5
+        });
     };
 
     const onSubmit = async (data: QuestionnaireData) => {
@@ -128,80 +180,18 @@ export function SalesDataForm({ prospect, onUpdate }: SalesDataFormProps) {
                 setSessionId(newSession.id);
             }
 
-            toast.success('Data saved successfully');
+            // 3. Perform Calculations Logic
+            calculateStats(data);
+
+            toast.success('Data saved & calculated successfully');
             onUpdate();
         } catch (error) {
             console.error('Error saving data:', error);
-            toast.error('Failed to save data');
+            toast.error('Failed to save data. Please check connection.');
         } finally {
             setLoading(false);
         }
     };
-
-    // Calculations
-    const calculateStats = () => {
-        const totalLeads = Number(values.total_leads) || 0;
-        const totalCalls = Number(values.total_calls) || 0;
-        const totalSales = Number(values.total_sales) || 0;
-        const currentRev = Number(values.current_monthly_revenue) || 0;
-        const targetRev = Number(values.target_monthly_revenue) || 0;
-        const adSpend = Number(values.monthly_ad_spend) || 0;
-
-        // 1. Attendance Rate
-        const attendanceRate = totalLeads > 0 ? (totalCalls / totalLeads) : 0;
-
-        // 2. Sales Conversion Rate (Sales / Attendees)
-        const salesConvRate = totalCalls > 0 ? (totalSales / totalCalls) : 0;
-
-        // AOV (Derived)
-        const aov = totalSales > 0 ? currentRev / totalSales : 0;
-
-        // 3. Sales needed to hit target
-        // If AOV is 0, we can't project.
-        const salesNeededForTarget = aov > 0 ? Math.ceil(targetRev / aov) : 0;
-
-        // 4. Ad Spend Required
-        // CPA = AdSpend / Sales
-        const cpa = totalSales > 0 ? adSpend / totalSales : 0;
-        const adSpendRequiredRaw = salesNeededForTarget * cpa;
-        const adSpendRequiredWithBuffer = adSpendRequiredRaw * 1.2; // 20% buffer
-
-        // 5. 50% Attendance Rate Scenario
-        // Metric: If attendance rate was 0.5 (or higher if it already is, but request says "if their current... is less than 50%")
-        // Let's assume we want to solve for "Ad Spend Saved" or "Sales Potential"?
-        // "Calculate same stats numbers based on 50% attendance rate"
-        // This implies: "How much ad spend required if attendance was 50%?"
-
-        let scenarioAdSpend = 0;
-        let scenarioSalesNeeded = salesNeededForTarget; // Same sales target
-
-        if (attendanceRate < 0.5 && aov > 0 && salesConvRate > 0) {
-            // With 50% attendance:
-            // Sales = Leads * 0.5 * ConvRate
-            // Leads Needed = Sales / (0.5 * ConvRate)
-            const targetScenarioRate = 0.5;
-            const leadsNeededScenario = scenarioSalesNeeded / (targetScenarioRate * salesConvRate);
-
-            // CPL (Cost Per Lead)
-            const cpl = totalLeads > 0 ? adSpend / totalLeads : 0;
-
-            const adSpendRawScenario = leadsNeededScenario * cpl;
-            scenarioAdSpend = adSpendRawScenario * 1.2; // Buffer
-        } else {
-            scenarioAdSpend = adSpendRequiredWithBuffer; // No change if already good
-        }
-
-        return {
-            attendanceRate,
-            salesConvRate,
-            salesNeededForTarget,
-            adSpendRequiredWithBuffer,
-            scenarioAdSpend,
-            isLowAttendance: attendanceRate < 0.5
-        };
-    };
-
-    const stats = calculateStats();
 
     return (
         <div className="space-y-6">
@@ -324,67 +314,78 @@ export function SalesDataForm({ prospect, onUpdate }: SalesDataFormProps) {
                 </Card>
 
                 {/* Calculations Section */}
-                <Card className="bg-muted/50">
-                    <CardHeader>
-                        <div className="flex items-center gap-2">
-                            <Calculator className="h-5 w-5 text-primary" />
-                            <CardTitle>Auto Calculations</CardTitle>
-                        </div>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div className="space-y-1">
-                                <Label className="text-muted-foreground">1. Current Attendance Rate</Label>
-                                <div className="text-2xl font-bold">{(stats.attendanceRate * 100).toFixed(1)}%</div>
-                                <p className="text-xs text-muted-foreground">Registrations to Attendees</p>
+                {calculatedStats && (
+                    <Card className="bg-muted/50 transition-all duration-500 animate-in fade-in slide-in-from-top-4">
+                        <CardHeader>
+                            <div className="flex items-center gap-2">
+                                <Calculator className="h-5 w-5 text-primary" />
+                                <CardTitle>Auto Calculations</CardTitle>
+                            </div>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div className="space-y-1">
+                                    <Label className="text-muted-foreground">1. Current Attendance Rate</Label>
+                                    <div className="text-2xl font-bold">{(calculatedStats.attendanceRate * 100).toFixed(1)}%</div>
+                                    <p className="text-xs text-muted-foreground">Registrations to Attendees</p>
+                                </div>
+
+                                <div className="space-y-1">
+                                    <Label className="text-muted-foreground">2. Sales Conversion Rate</Label>
+                                    <div className="text-2xl font-bold">{(calculatedStats.salesConvRate * 100).toFixed(1)}%</div>
+                                    <p className="text-xs text-muted-foreground">Attendees to Sales</p>
+                                </div>
+
+                                <div className="space-y-1">
+                                    <Label className="text-muted-foreground">3. Sales Needed for Target</Label>
+                                    <div className="text-2xl font-bold">{calculatedStats.salesNeededForTarget}</div>
+                                    <p className="text-xs text-muted-foreground">To hit {formatINR(values.target_monthly_revenue || 0)}</p>
+                                </div>
+
+                                <div className="space-y-1">
+                                    <Label className="text-muted-foreground">4. Required Ad Spend</Label>
+                                    <div className="text-2xl font-bold">{formatINR(calculatedStats.adSpendRequiredWithBuffer)}</div>
+                                    <p className="text-xs text-muted-foreground">Includes 20% buffer</p>
+                                </div>
                             </div>
 
-                            <div className="space-y-1">
-                                <Label className="text-muted-foreground">2. Sales Conversion Rate</Label>
-                                <div className="text-2xl font-bold">{(stats.salesConvRate * 100).toFixed(1)}%</div>
-                                <p className="text-xs text-muted-foreground">Attendees to Sales</p>
-                            </div>
-
-                            <div className="space-y-1">
-                                <Label className="text-muted-foreground">3. Sales Needed for Target</Label>
-                                <div className="text-2xl font-bold">{stats.salesNeededForTarget}</div>
-                                <p className="text-xs text-muted-foreground">To hit {formatINR(values.target_monthly_revenue)}</p>
-                            </div>
-
-                            <div className="space-y-1">
-                                <Label className="text-muted-foreground">4. Required Ad Spend</Label>
-                                <div className="text-2xl font-bold">{formatINR(stats.adSpendRequiredWithBuffer)}</div>
-                                <p className="text-xs text-muted-foreground">Includes 20% buffer</p>
-                            </div>
-                        </div>
-
-                        {stats.isLowAttendance && (
-                            <>
-                                <Separator />
-                                <div>
-                                    <h4 className="font-semibold mb-4 text-primary">SCENARIO: If Attendance Rate was 50%</h4>
-                                    <div className="grid grid-cols-1 gap-6">
-                                        <div className="space-y-1">
-                                            <Label className="text-muted-foreground">Required Ad Spend (at 50% attendance)</Label>
-                                            <div className="flex items-baseline gap-2">
-                                                <div className="text-2xl font-bold text-success-foreground">{formatINR(stats.scenarioAdSpend)}</div>
-                                                <span className="text-sm text-muted-foreground line-through">{formatINR(stats.adSpendRequiredWithBuffer)}</span>
+                            {calculatedStats.isLowAttendance && (
+                                <>
+                                    <Separator />
+                                    <div>
+                                        <h4 className="font-semibold mb-4 text-primary">SCENARIO: If Attendance Rate was 50%</h4>
+                                        <div className="grid grid-cols-1 gap-6">
+                                            <div className="space-y-1">
+                                                <Label className="text-muted-foreground">Required Ad Spend (at 50% attendance)</Label>
+                                                <div className="flex items-baseline gap-2">
+                                                    <div className="text-2xl font-bold text-success-foreground">{formatINR(calculatedStats.scenarioAdSpend)}</div>
+                                                    <span className="text-sm text-muted-foreground line-through">{formatINR(calculatedStats.adSpendRequiredWithBuffer)}</span>
+                                                </div>
+                                                <p className="text-xs text-muted-foreground">
+                                                    You would save {formatINR(Math.max(0, calculatedStats.adSpendRequiredWithBuffer - calculatedStats.scenarioAdSpend))} by improving attendance to 50%
+                                                </p>
                                             </div>
-                                            <p className="text-xs text-muted-foreground">
-                                                You would save {formatINR(Math.max(0, stats.adSpendRequiredWithBuffer - stats.scenarioAdSpend))} by improving attendance to 50%
-                                            </p>
                                         </div>
                                     </div>
-                                </div>
+                                </>
+                            )}
+                        </CardContent>
+                    </Card>
+                )}
+
+                <div className="flex justify-end sticky bottom-4 z-10">
+                    <Button type="submit" size="lg" disabled={loading} className="w-full md:w-auto shadow-lg">
+                        {loading ? (
+                            <>
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                Saving...
+                            </>
+                        ) : (
+                            <>
+                                <Calculator className="mr-2 h-4 w-4" />
+                                Save & Calculate
                             </>
                         )}
-                    </CardContent>
-                </Card>
-
-                <div className="flex justify-end">
-                    <Button type="submit" size="lg" disabled={loading}>
-                        {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                        Save Data
                     </Button>
                 </div>
             </form>
