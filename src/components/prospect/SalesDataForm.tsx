@@ -437,6 +437,22 @@ export function SalesDataForm({ prospect, onUpdate }: SalesDataFormProps) {
                     </Button>
                 </div>
             </form>
+
+            <Card className="bg-slate-100 mt-8 border-dashed">
+                <CardHeader>
+                    <CardTitle className="text-sm font-mono text-slate-500">Debug Info (Temporary)</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <div className="space-y-2">
+                        <Label className="text-xs font-mono text-slate-500">Session ID: {sessionId || 'None'}</Label>
+                        <Separator />
+                        <Label className="text-xs font-mono text-slate-500">Last Loaded Data (DB):</Label>
+                        <pre className="text-xs bg-white p-2 rounded border overflow-auto max-h-40">
+                            {JSON.stringify(form.getValues(), null, 2)}
+                        </pre>
+                    </div>
+                </CardContent>
+            </Card>
         </div>
     );
 }
