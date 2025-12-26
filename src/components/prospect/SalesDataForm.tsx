@@ -146,6 +146,12 @@ export function SalesDataForm({ prospect, onUpdate }: SalesDataFormProps) {
         // detailed logic: Target / EffectiveValue per customer
         const salesNeededForTarget = effectiveValue > 0 ? Math.ceil(targetRev / effectiveValue) : 0;
 
+        // Projected L2 and L3 sales (rounded down as they are subsets)
+        // L2 is 10% of L1
+        const l2SalesNeeded = Math.floor(salesNeededForTarget * 0.10);
+        // L3 is 10% of L2
+        const l3SalesNeeded = Math.floor(l2SalesNeeded * 0.10);
+
         // 4. Ad Spend Required
         // CPA Logic: If we have historical CPA, use it. Else estimate.
         let cpa = totalSales > 0 ? adSpend / totalSales : 0;
@@ -173,6 +179,7 @@ export function SalesDataForm({ prospect, onUpdate }: SalesDataFormProps) {
 
         // 5. 50% Attendance Rate Scenario
         let scenarioAdSpend = 0;
+        let scenarioCostPerAttendee = 0;
 
         if (attendanceRate < 0.5 && effectiveValue > 0) {
             // Scenario: 50% attendance, same conversion rate
@@ -187,9 +194,16 @@ export function SalesDataForm({ prospect, onUpdate }: SalesDataFormProps) {
 
             if (cpl > 0) {
                 scenarioAdSpend = (leadsNeededScenario * cpl) * 1.2;
+                // Cost per attendee improves because attendance is higher for same leads (wait, CPL constant)
+                // Cost Per Attendee = Ad Spend / Attendees
+                // Leads * CPL = Ad Spend
+                // Attendees = Leads * 0.5
+                // CPA_attendee = (Leads * CPL) / (Leads * 0.5) = CPL / 0.5
+                scenarioCostPerAttendee = cpl / 0.5;
             }
         } else {
             scenarioAdSpend = adSpendRequiredWithBuffer;
+            scenarioCostPerAttendee = costPerAttendee; // fallback
         }
 
         setCalculatedStats({
@@ -198,8 +212,11 @@ export function SalesDataForm({ prospect, onUpdate }: SalesDataFormProps) {
             costPerLead,
             costPerAttendee,
             salesNeededForTarget,
+            l2SalesNeeded,
+            l3SalesNeeded,
             adSpendRequiredWithBuffer,
             scenarioAdSpend,
+            scenarioCostPerAttendee,
             effectiveValue,
             isLowAttendance: attendanceRate < 0.5 && attendanceRate >= 0
         });
@@ -419,6 +436,12 @@ export function SalesDataForm({ prospect, onUpdate }: SalesDataFormProps) {
                                     <p className="text-xs text-muted-foreground">
                                         Based on Effective Value of {formatINR(calculatedStats.effectiveValue)} (L1 + Upsells)
                                     </p>
+                                    {(calculatedStats.l2SalesNeeded > 0 || calculatedStats.l3SalesNeeded > 0) && (
+                                        <div className="text-xs text-slate-500 mt-1">
+                                            + {calculatedStats.l2SalesNeeded} L2 Sales (10%) <br />
+                                            + {calculatedStats.l3SalesNeeded} L3 Sales (1%)
+                                        </div>
+                                    )}
                                 </div>
 
                                 <div className="space-y-1">
@@ -433,7 +456,7 @@ export function SalesDataForm({ prospect, onUpdate }: SalesDataFormProps) {
                                     <Separator />
                                     <div>
                                         <h4 className="font-semibold mb-4 text-primary">SCENARIO: If Attendance Rate was 50%</h4>
-                                        <div className="grid grid-cols-1 gap-6">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                             <div className="space-y-1">
                                                 <Label className="text-muted-foreground">Required Ad Spend (at 50% attendance)</Label>
                                                 <div className="flex items-baseline gap-2">
@@ -442,6 +465,17 @@ export function SalesDataForm({ prospect, onUpdate }: SalesDataFormProps) {
                                                 </div>
                                                 <p className="text-xs text-muted-foreground">
                                                     You would save {formatINR(Math.max(0, calculatedStats.adSpendRequiredWithBuffer - calculatedStats.scenarioAdSpend))}
+                                                </p>
+                                            </div>
+
+                                            <div className="space-y-1">
+                                                <Label className="text-muted-foreground">Cost Per Attendee (at 50% attendance)</Label>
+                                                <div className="flex items-baseline gap-2">
+                                                    <div className="text-2xl font-bold text-success-foreground">{formatINR(calculatedStats.scenarioCostPerAttendee)}</div>
+                                                    <span className="text-sm text-muted-foreground line-through">{formatINR(calculatedStats.costPerAttendee)}</span>
+                                                </div>
+                                                <p className="text-xs text-muted-foreground">
+                                                    Improved from {formatINR(calculatedStats.costPerAttendee)}
                                                 </p>
                                             </div>
                                         </div>
