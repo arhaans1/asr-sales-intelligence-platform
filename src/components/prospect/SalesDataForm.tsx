@@ -117,15 +117,30 @@ export function SalesDataForm({ prospect, onUpdate }: SalesDataFormProps) {
         const salesConvRate = totalCalls > 0 ? (totalSales / totalCalls) : 0;
 
         // AOV (Derived)
-        const aov = totalSales > 0 ? currentRev / totalSales : 0;
+        // If no sales yet, use L1 Price as fallback AOV
+        let aov = totalSales > 0 ? currentRev / totalSales : 0;
+        if (aov === 0) {
+            aov = Number(data.l1_price) || 0;
+        }
 
         // 3. Sales needed to hit target
-        // If AOV is 0, we can't project.
-        const salesNeededForTarget = aov > 0 ? Math.ceil(targetRev / aov) : 0;
+        const salesNeededForTarget = (aov > 0 && targetRev > 0) ? Math.ceil(targetRev / aov) : 0;
 
         // 4. Ad Spend Required
         // CPA = AdSpend / Sales
-        const cpa = totalSales > 0 ? adSpend / totalSales : 0;
+        // If no sales, calculate estimated CPA from CPL and assumed conversion (e.g. 10% from calls, or 5% from leads)
+        let cpa = totalSales > 0 ? adSpend / totalSales : 0;
+
+        if (cpa === 0 && totalLeads > 0 && adSpend > 0) {
+            const cpl = adSpend / totalLeads;
+            // Fallback conversion: use calculated rate if > 0, else assume 5% (0.05) overall lead-to-sale
+            const projectedLeadToSale = (attendanceRate > 0 && salesConvRate > 0)
+                ? (attendanceRate * salesConvRate)
+                : 0.05; // Default 5% funnel conversion if no data
+
+            cpa = cpl / projectedLeadToSale;
+        }
+
         const adSpendRequiredRaw = salesNeededForTarget * cpa;
         const adSpendRequiredWithBuffer = adSpendRequiredRaw * 1.2; // 20% buffer
 
@@ -133,12 +148,23 @@ export function SalesDataForm({ prospect, onUpdate }: SalesDataFormProps) {
         let scenarioAdSpend = 0;
         let scenarioSalesNeeded = salesNeededForTarget;
 
-        if (attendanceRate < 0.5 && aov > 0 && salesConvRate > 0) {
-            const targetScenarioRate = 0.5;
-            const leadsNeededScenario = scenarioSalesNeeded / (targetScenarioRate * salesConvRate);
-            const cpl = totalLeads > 0 ? adSpend / totalLeads : 0;
-            const adSpendRawScenario = leadsNeededScenario * cpl;
-            scenarioAdSpend = adSpendRawScenario * 1.2; // Buffer
+        if (attendanceRate < 0.5 && aov > 0) {
+            // Scenario: 50% of leads show up.
+            // Assumption: Sales Conversion Rate (Attendee -> Sale) stays same.
+
+            const targetAttendance = 0.5;
+            const currentConv = salesConvRate > 0 ? salesConvRate : 0.1; // fallback 10% close rate
+
+            // Leads needed = Sales / (0.5 * Conv)
+            const leadsNeededScenario = scenarioSalesNeeded / (targetAttendance * currentConv);
+
+            // CPL stays same
+            const cpl = totalLeads > 0 ? adSpend / totalLeads : (adSpend > 0 ? (adSpend / (totalLeads || 1)) : 0);
+
+            if (cpl > 0) {
+                const adSpendRawScenario = leadsNeededScenario * cpl;
+                scenarioAdSpend = adSpendRawScenario * 1.2;
+            }
         } else {
             scenarioAdSpend = adSpendRequiredWithBuffer;
         }
@@ -149,7 +175,7 @@ export function SalesDataForm({ prospect, onUpdate }: SalesDataFormProps) {
             salesNeededForTarget,
             adSpendRequiredWithBuffer,
             scenarioAdSpend,
-            isLowAttendance: attendanceRate < 0.5
+            isLowAttendance: attendanceRate < 0.5 && attendanceRate >= 0
         });
     };
 
