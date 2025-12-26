@@ -95,10 +95,17 @@ export function SalesDataForm({ prospect, onUpdate }: SalesDataFormProps) {
 
                     // Also trigger calculation if data exists
                     calculateStats(data);
+                    toast.success('Debug: Data loaded successfully');
+                } else {
+                    toast.warning('Debug: Session found but has no data');
                 }
+            } else {
+                // intentally silent if new prospect, but for debug:
+                // toast.info('Debug: No saved session found for this prospect');
             }
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error loading session data:', error);
+            toast.error(`Error loading data: ${error.message}`);
         }
     };
 
