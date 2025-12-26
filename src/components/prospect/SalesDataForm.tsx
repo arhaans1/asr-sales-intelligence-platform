@@ -181,7 +181,7 @@ export function SalesDataForm({ prospect, onUpdate }: SalesDataFormProps) {
         let scenarioAdSpend = 0;
         let scenarioCostPerAttendee = 0;
 
-        if (attendanceRate < 0.5 && effectiveValue > 0) {
+        if (attendanceRate < 0.5 && attendanceRate >= 0 && effectiveValue > 0) {
             // Scenario: 50% attendance, same conversion rate
             const targetAttendance = 0.5;
             const currentConv = salesConvRate > 0 ? salesConvRate : 0.1;
@@ -195,15 +195,24 @@ export function SalesDataForm({ prospect, onUpdate }: SalesDataFormProps) {
             if (cpl > 0) {
                 scenarioAdSpend = (leadsNeededScenario * cpl) * 1.2;
                 // Cost per attendee improves because attendance is higher for same leads (wait, CPL constant)
-                // Cost Per Attendee = Ad Spend / Attendees
-                // Leads * CPL = Ad Spend
-                // Attendees = Leads * 0.5
-                // CPA_attendee = (Leads * CPL) / (Leads * 0.5) = CPL / 0.5
+                // Cost Per Attendee = (Leads * CPL) / (Leads * 0.5) = CPL / 0.5
                 scenarioCostPerAttendee = cpl / 0.5;
             }
         } else {
             scenarioAdSpend = adSpendRequiredWithBuffer;
             scenarioCostPerAttendee = costPerAttendee; // fallback
+        }
+
+        // 6. Profit Calculation
+        // Projected Profit = Target Revenue - Ad Spend Required
+        const projectedProfit = targetRev - adSpendRequiredWithBuffer;
+
+        let scenarioProfit = 0;
+        if (scenarioAdSpend > 0) {
+            scenarioProfit = targetRev - scenarioAdSpend;
+        } else {
+            // fallback if scenario not active (technically scenarioAdSpend is AdSpendRequired)
+            scenarioProfit = projectedProfit;
         }
 
         setCalculatedStats({
@@ -215,8 +224,10 @@ export function SalesDataForm({ prospect, onUpdate }: SalesDataFormProps) {
             l2SalesNeeded,
             l3SalesNeeded,
             adSpendRequiredWithBuffer,
+            projectedProfit,
             scenarioAdSpend,
             scenarioCostPerAttendee,
+            scenarioProfit,
             effectiveValue,
             isLowAttendance: attendanceRate < 0.5 && attendanceRate >= 0
         });
@@ -467,11 +478,23 @@ export function SalesDataForm({ prospect, onUpdate }: SalesDataFormProps) {
 
                             <Separator />
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div className="space-y-1">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                <div className="space-y-1 border-l-4 border-blue-500 pl-4 bg-blue-50/50 p-2 rounded">
+                                    <Label className="text-muted-foreground">Revenue Target</Label>
+                                    <div className="text-2xl font-bold text-slate-800">{formatINR(form.watch('target_monthly_revenue') || 0)}</div>
+                                    <p className="text-xs text-muted-foreground">Desired Monthly Revenue</p>
+                                </div>
+
+                                <div className="space-y-1 border-l-4 border-amber-500 pl-4 bg-amber-50/50 p-2 rounded">
                                     <Label className="text-muted-foreground">Required Ad Spend</Label>
-                                    <div className="text-2xl font-bold">{formatINR(calculatedStats.adSpendRequiredWithBuffer)}</div>
-                                    <p className="text-xs text-muted-foreground">To hit {formatINR(form.watch('target_monthly_revenue') || 0)} Revenue</p>
+                                    <div className="text-2xl font-bold text-amber-700">{formatINR(calculatedStats.adSpendRequiredWithBuffer)}</div>
+                                    <p className="text-xs text-muted-foreground">Projected Cost (with Buffer)</p>
+                                </div>
+
+                                <div className="space-y-1 border-l-4 border-green-500 pl-4 bg-green-50/50 p-2 rounded">
+                                    <Label className="text-muted-foreground">Projected Profit</Label>
+                                    <div className="text-2xl font-bold text-green-700">{formatINR(calculatedStats.projectedProfit)}</div>
+                                    <p className="text-xs text-muted-foreground">Net Monthly (Revenue - Spend)</p>
                                 </div>
                             </div>
 
@@ -480,26 +503,32 @@ export function SalesDataForm({ prospect, onUpdate }: SalesDataFormProps) {
                                     <Separator />
                                     <div>
                                         <h4 className="font-semibold mb-4 text-primary">SCENARIO: If Attendance Rate was 50%</h4>
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                            <div className="space-y-1">
-                                                <Label className="text-muted-foreground">Required Ad Spend (at 50% attendance)</Label>
+                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                            <div className="space-y-1 border-l-4 border-blue-400 pl-4 bg-blue-50/30 p-2 rounded opacity-75">
+                                                <Label className="text-muted-foreground">Revenue Target</Label>
+                                                <div className="text-xl font-bold text-slate-700">{formatINR(form.watch('target_monthly_revenue') || 0)}</div>
+                                                <p className="text-xs text-muted-foreground">Same Goal, Better Efficiency</p>
+                                            </div>
+
+                                            <div className="space-y-1 border-l-4 border-amber-400 pl-4 bg-amber-50/30 p-2 rounded">
+                                                <Label className="text-muted-foreground">Required Ad Spend</Label>
                                                 <div className="flex items-baseline gap-2">
-                                                    <div className="text-2xl font-bold text-success-foreground">{formatINR(calculatedStats.scenarioAdSpend)}</div>
-                                                    <span className="text-sm text-muted-foreground line-through">{formatINR(calculatedStats.adSpendRequiredWithBuffer)}</span>
+                                                    <div className="text-xl font-bold text-amber-600">{formatINR(calculatedStats.scenarioAdSpend)}</div>
+                                                    <span className="text-xs text-muted-foreground line-through opacity-50">{formatINR(calculatedStats.adSpendRequiredWithBuffer)}</span>
                                                 </div>
-                                                <p className="text-xs text-muted-foreground">
-                                                    You would save {formatINR(Math.max(0, calculatedStats.adSpendRequiredWithBuffer - calculatedStats.scenarioAdSpend))}
+                                                <p className="text-xs text-success-foreground font-medium">
+                                                    Save {formatINR(Math.max(0, calculatedStats.adSpendRequiredWithBuffer - calculatedStats.scenarioAdSpend))}
                                                 </p>
                                             </div>
 
-                                            <div className="space-y-1">
-                                                <Label className="text-muted-foreground">Cost Per Attendee (at 50% attendance)</Label>
+                                            <div className="space-y-1 border-l-4 border-green-500 pl-4 bg-green-50/30 p-2 rounded">
+                                                <Label className="text-muted-foreground">Projected Profit</Label>
                                                 <div className="flex items-baseline gap-2">
-                                                    <div className="text-2xl font-bold text-success-foreground">{formatINR(calculatedStats.scenarioCostPerAttendee)}</div>
-                                                    <span className="text-sm text-muted-foreground line-through">{formatINR(calculatedStats.costPerAttendee)}</span>
+                                                    <div className="text-xl font-bold text-green-700">{formatINR(calculatedStats.scenarioProfit)}</div>
+                                                    <span className="text-xs text-muted-foreground line-through opacity-50">{formatINR(calculatedStats.projectedProfit)}</span>
                                                 </div>
-                                                <p className="text-xs text-muted-foreground">
-                                                    Improved from {formatINR(calculatedStats.costPerAttendee)}
+                                                <p className="text-xs text-success-foreground font-medium">
+                                                    Extra Profit: {formatINR(calculatedStats.scenarioProfit - calculatedStats.projectedProfit)}
                                                 </p>
                                             </div>
                                         </div>
