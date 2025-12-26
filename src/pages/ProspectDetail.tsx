@@ -99,6 +99,10 @@ export default function ProspectDetail() {
             <p className="text-muted-foreground mt-1">
               {prospect.contact_name} • {prospect.industry_vertical}
             </p>
+            <div className="flex gap-4 text-sm text-muted-foreground mt-1">
+              {prospect.email && <span>{prospect.email}</span>}
+              {prospect.mobile && <span>{prospect.mobile}</span>}
+            </div>
           </div>
         </div>
         <div className="flex items-center gap-2">

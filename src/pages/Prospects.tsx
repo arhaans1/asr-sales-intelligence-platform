@@ -9,7 +9,7 @@ import { prospectsApi } from '@/services/api';
 import type { Prospect } from '@/types/database';
 import { Plus, Search } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
-import { formatINR } from '@/lib/utils';
+
 
 export default function Prospects() {
   const [prospects, setProspects] = useState<Prospect[]>([]);
@@ -151,8 +151,8 @@ export default function Prospects() {
             <Link key={prospect.id} to={`/prospects/${prospect.id}`}>
               <Card className="hover:bg-accent transition-smooth cursor-pointer">
                 <CardContent className="p-6">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
+                  <div className="flex items-center justify-between">
+                    <div>
                       <div className="flex items-center gap-3 mb-2">
                         <h3 className="text-xl font-semibold">{prospect.business_name}</h3>
                         <Badge className={getStatusColor(prospect.status)}>
@@ -160,28 +160,7 @@ export default function Prospects() {
                         </Badge>
                       </div>
                       <div className="space-y-1 text-sm text-muted-foreground">
-                        <p>Contact: {prospect.contact_name}</p>
-                        <p>Industry: {prospect.industry_vertical}</p>
-                        {prospect.niche_description && (
-                          <p>Niche: {prospect.niche_description}</p>
-                        )}
-                      </div>
-                    </div>
-                    <div className="text-right space-y-2">
-                      <div>
-                        <div className="text-xs text-muted-foreground">Current Revenue</div>
-                        <div className="text-lg font-semibold">
-                          {formatINR(prospect.current_monthly_revenue)}
-                        </div>
-                      </div>
-                      <div>
-                        <div className="text-xs text-muted-foreground">Target Revenue</div>
-                        <div className="text-lg font-semibold text-primary">
-                          {formatINR(prospect.target_monthly_revenue)}
-                        </div>
-                      </div>
-                      <div className="text-xs text-muted-foreground">
-                        Timeline: {prospect.timeline_months} months
+                        <p>{prospect.contact_name} • {prospect.industry_vertical}</p>
                       </div>
                     </div>
                   </div>

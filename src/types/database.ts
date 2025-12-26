@@ -8,7 +8,7 @@ export type ProductType = 'Course' | 'Coaching' | 'Service' | 'Software';
 
 export type DeliveryMethod = '1:1' | 'Group' | 'Self-Paced' | 'Hybrid';
 
-export type FunnelType = 
+export type FunnelType =
   | '1:1 Sales Call Funnel'
   | 'Live Webinar Funnel'
   | 'Automated Webinar Funnel'
@@ -35,6 +35,8 @@ export interface Prospect {
   contact_name: string;
   industry_vertical: string;
   niche_description: string | null;
+  email: string | null;
+  mobile: string | null;
   current_monthly_revenue: number;
   target_monthly_revenue: number;
   timeline_months: number;

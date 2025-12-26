@@ -14,10 +14,9 @@ import {
 import {
   LayoutDashboard,
   Users,
-  TrendingUp,
-  FileText,
   Settings,
   UserCog,
+  TrendingUp,
 } from 'lucide-react';
 import { useAuth } from 'miaoda-auth-react';
 import { profilesApi } from '@/services/api';
@@ -34,16 +33,6 @@ const menuItems = [
     title: 'Prospects',
     icon: Users,
     path: '/prospects',
-  },
-  {
-    title: 'Analysis',
-    icon: TrendingUp,
-    path: '/analysis',
-  },
-  {
-    title: 'Reports',
-    icon: FileText,
-    path: '/reports',
   },
 ];
 

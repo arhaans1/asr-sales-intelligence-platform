@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { prospectsApi } from '@/services/api';
 import type { Prospect } from '@/types/database';
-import { Users, TrendingUp, Target, Plus } from 'lucide-react';
+import { Users, Plus } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { StatCard } from '@/components/dashboard/StatCard';
 import { animationClasses } from '@/lib/animations';
@@ -29,10 +29,6 @@ export default function Dashboard() {
   };
 
   const activeProspects = prospects.filter(p => p.status === 'active').length;
-  const closedWon = prospects.filter(p => p.status === 'closed_won').length;
-  const totalRevenue = prospects
-    .filter(p => p.status === 'closed_won')
-    .reduce((sum, p) => sum + (p.target_monthly_revenue || 0), 0);
 
   return (
     <div className="space-y-6">
@@ -55,8 +51,6 @@ export default function Dashboard() {
         {loading ? (
           <>
             <Skeleton className="h-32 w-full bg-muted" />
-            <Skeleton className="h-32 w-full bg-muted" />
-            <Skeleton className="h-32 w-full bg-muted" />
           </>
         ) : (
           <>
@@ -66,22 +60,6 @@ export default function Dashboard() {
                 value={prospects.length}
                 description={`${activeProspects} active`}
                 icon={<Users className="h-4 w-4" />}
-              />
-            </div>
-            <div className={animationClasses.slideUp} style={{ animationDelay: '100ms' }}>
-              <StatCard
-                title="Closed Won"
-                value={closedWon}
-                description={`${prospects.length > 0 ? ((closedWon / prospects.length) * 100).toFixed(1) : 0}% conversion rate`}
-                icon={<Target className="h-4 w-4" />}
-              />
-            </div>
-            <div className={animationClasses.slideUp} style={{ animationDelay: '200ms' }}>
-              <StatCard
-                title="Total Revenue"
-                value={`₹${(totalRevenue / 100000).toFixed(2)}L`}
-                description="Target monthly revenue"
-                icon={<TrendingUp className="h-4 w-4" />}
               />
             </div>
           </>
