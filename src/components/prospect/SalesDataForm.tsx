@@ -156,18 +156,32 @@ export function SalesDataForm({ prospect, onUpdate }: SalesDataFormProps) {
     const onSubmit = async (data: QuestionnaireData) => {
         setLoading(true);
         try {
+            // Sanitize numeric fields (handle empty strings as 0)
+            const numericData = {
+                ...data,
+                l1_price: Number(data.l1_price) || 0,
+                l2_price: Number(data.l2_price) || 0,
+                l3_price: Number(data.l3_price) || 0,
+                monthly_ad_spend: Number(data.monthly_ad_spend) || 0,
+                total_leads: Number(data.total_leads) || 0,
+                total_calls: Number(data.total_calls) || 0,
+                total_sales: Number(data.total_sales) || 0,
+                current_monthly_revenue: Number(data.current_monthly_revenue) || 0,
+                target_monthly_revenue: Number(data.target_monthly_revenue) || 0,
+            };
+
             // 1. Update Prospect Table fields
             await prospectsApi.update(prospect.id, {
                 business_name: data.business_name,
-                current_monthly_revenue: data.current_monthly_revenue,
-                target_monthly_revenue: data.target_monthly_revenue,
+                current_monthly_revenue: numericData.current_monthly_revenue,
+                target_monthly_revenue: numericData.target_monthly_revenue,
             });
 
             // 2. Save full data to Session
             const sessionData = {
                 prospect_id: prospect.id,
                 session_name: 'General Data',
-                session_data: data as unknown as Record<string, unknown>,
+                session_data: numericData as unknown as Record<string, unknown>,
             };
 
             if (sessionId) {
@@ -181,13 +195,14 @@ export function SalesDataForm({ prospect, onUpdate }: SalesDataFormProps) {
             }
 
             // 3. Perform Calculations Logic
-            calculateStats(data);
+            calculateStats(numericData);
 
             toast.success('Data saved & calculated successfully');
             onUpdate();
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error saving data:', error);
-            toast.error('Failed to save data. Please check connection.');
+            const errorMessage = error.message || 'Unknown error occurred';
+            toast.error(`Failed to save data: ${errorMessage}`);
         } finally {
             setLoading(false);
         }
