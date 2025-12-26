@@ -429,25 +429,49 @@ export function SalesDataForm({ prospect, onUpdate }: SalesDataFormProps) {
 
                             <Separator />
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div className="space-y-1">
-                                    <Label className="text-muted-foreground">L1 Sales Needed For Target</Label>
-                                    <div className="text-2xl font-bold">{calculatedStats.salesNeededForTarget}</div>
-                                    <p className="text-xs text-muted-foreground">
-                                        Based on Effective Value of {formatINR(calculatedStats.effectiveValue)} (L1 + Upsells)
-                                    </p>
-                                    {(calculatedStats.l2SalesNeeded > 0 || calculatedStats.l3SalesNeeded > 0) && (
-                                        <div className="text-xs text-slate-500 mt-1">
-                                            + {calculatedStats.l2SalesNeeded} L2 Sales (10%) <br />
-                                            + {calculatedStats.l3SalesNeeded} L3 Sales (1%)
+                            <div className="space-y-4">
+                                <Label className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Sales Targets</Label>
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                    <div className="bg-slate-50 p-4 rounded-lg border border-slate-200">
+                                        <Label className="text-muted-foreground">L1 Sales Required</Label>
+                                        <div className="text-3xl font-bold text-primary mt-2">{calculatedStats.salesNeededForTarget}</div>
+                                        <p className="text-xs text-muted-foreground mt-1">
+                                            Base Level
+                                        </p>
+                                    </div>
+
+                                    {(calculatedStats.l2SalesNeeded > 0) && (
+                                        <div className="bg-slate-50 p-4 rounded-lg border border-slate-200">
+                                            <Label className="text-muted-foreground">L2 Sales Required</Label>
+                                            <div className="text-3xl font-bold text-primary mt-2">{calculatedStats.l2SalesNeeded}</div>
+                                            <p className="text-xs text-muted-foreground mt-1">
+                                                Upsell (10% of L1)
+                                            </p>
+                                        </div>
+                                    )}
+
+                                    {(calculatedStats.l3SalesNeeded > 0) && (
+                                        <div className="bg-slate-50 p-4 rounded-lg border border-slate-200">
+                                            <Label className="text-muted-foreground">L3 Sales Required</Label>
+                                            <div className="text-3xl font-bold text-primary mt-2">{calculatedStats.l3SalesNeeded}</div>
+                                            <p className="text-xs text-muted-foreground mt-1">
+                                                High Ticket (1% of L1)
+                                            </p>
                                         </div>
                                     )}
                                 </div>
+                                <p className="text-xs text-muted-foreground text-center italic">
+                                    Based on Effective Average Value of {formatINR(calculatedStats.effectiveValue)} per customer
+                                </p>
+                            </div>
 
+                            <Separator />
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div className="space-y-1">
                                     <Label className="text-muted-foreground">Required Ad Spend</Label>
                                     <div className="text-2xl font-bold">{formatINR(calculatedStats.adSpendRequiredWithBuffer)}</div>
-                                    <p className="text-xs text-muted-foreground">Includes 20% buffer</p>
+                                    <p className="text-xs text-muted-foreground">To hit {formatINR(form.watch('target_monthly_revenue') || 0)} Revenue</p>
                                 </div>
                             </div>
 
