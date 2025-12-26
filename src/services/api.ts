@@ -62,6 +62,35 @@ export const profilesApi = {
   },
 };
 
+// Helper to parse email/mobile from niche_description
+const enrichProspect = (prospect: any): Prospect => {
+  if (!prospect) return prospect;
+
+  let email = null;
+  let mobile = null;
+
+  // Try to parse email/mobile from niche_description if it looks like JSON
+  if (prospect.niche_description && prospect.niche_description.startsWith('{')) {
+    try {
+      const data = JSON.parse(prospect.niche_description);
+      if (data.email) email = data.email;
+      if (data.mobile) mobile = data.mobile;
+    } catch (e) {
+      // Not JSON, ignore
+    }
+  }
+
+  // Also check if they are already present (if migration eventually runs)
+  if (prospect.email) email = prospect.email;
+  if (prospect.mobile) mobile = prospect.mobile;
+
+  return {
+    ...prospect,
+    email,
+    mobile,
+  };
+};
+
 export const prospectsApi = {
   async getAll(): Promise<Prospect[]> {
     const { data, error } = await supabase
@@ -70,7 +99,7 @@ export const prospectsApi = {
       .order('created_at', { ascending: false });
 
     if (error) throw error;
-    return Array.isArray(data) ? data : [];
+    return Array.isArray(data) ? data.map(enrichProspect) : [];
   },
 
   async getById(id: string): Promise<Prospect | null> {
@@ -81,7 +110,7 @@ export const prospectsApi = {
       .maybeSingle();
 
     if (error) throw error;
-    return data;
+    return data ? enrichProspect(data) : null;
   },
 
   async getWithProducts(id: string): Promise<ProspectWithProducts | null> {
@@ -103,7 +132,7 @@ export const prospectsApi = {
     if (productsError) throw productsError;
 
     return {
-      ...prospect,
+      ...enrichProspect(prospect),
       products: Array.isArray(products) ? products : [],
     };
   },
@@ -112,28 +141,57 @@ export const prospectsApi = {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error('Not authenticated');
 
+    // Create a copy to manipulate
+    const payload: any = { ...prospect };
+
+    // Extract values for storage
+    const email = payload.email;
+    const mobile = payload.mobile;
+
+    // Explicitly delete from payload so they are not sent to DB columns
+    delete payload.email;
+    delete payload.mobile;
+
+    // Store in niche_description
+    payload.niche_description = JSON.stringify({ email, mobile });
+    payload.user_id = user.id;
+
     const { data, error } = await supabase
       .from('prospects')
-      .insert({ ...prospect, user_id: user.id })
+      .insert(payload)
       .select()
       .maybeSingle();
 
     if (error) throw error;
     if (!data) throw new Error('Failed to create prospect');
-    return data;
+    return enrichProspect(data);
   },
 
   async update(id: string, updates: Partial<Prospect>): Promise<Prospect> {
+    const payload: any = { ...updates };
+
+    // Check if we need to update stored metadata
+    if (payload.email !== undefined || payload.mobile !== undefined) {
+      const email = payload.email;
+      const mobile = payload.mobile;
+
+      // Explicitly delete from payload
+      delete payload.email;
+      delete payload.mobile;
+
+      payload.niche_description = JSON.stringify({ email, mobile });
+    }
+
     const { data, error } = await supabase
       .from('prospects')
-      .update(updates)
+      .update(payload)
       .eq('id', id)
       .select()
       .maybeSingle();
 
     if (error) throw error;
     if (!data) throw new Error('Prospect not found');
-    return data;
+    return enrichProspect(data);
   },
 
   async delete(id: string): Promise<void> {
@@ -153,7 +211,7 @@ export const prospectsApi = {
       .order('created_at', { ascending: false });
 
     if (error) throw error;
-    return Array.isArray(data) ? data : [];
+    return Array.isArray(data) ? data.map(enrichProspect) : [];
   },
 
   async filterByStatus(status: string): Promise<Prospect[]> {
@@ -164,7 +222,7 @@ export const prospectsApi = {
       .order('created_at', { ascending: false });
 
     if (error) throw error;
-    return Array.isArray(data) ? data : [];
+    return Array.isArray(data) ? data.map(enrichProspect) : [];
   },
 };
 
