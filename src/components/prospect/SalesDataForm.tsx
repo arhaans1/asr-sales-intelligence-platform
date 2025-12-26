@@ -503,11 +503,11 @@ export function SalesDataForm({ prospect, onUpdate }: SalesDataFormProps) {
                                     <Separator />
                                     <div>
                                         <h4 className="font-semibold mb-4 text-primary">SCENARIO: If Attendance Rate was 50%</h4>
-                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                                             <div className="space-y-1 border-l-4 border-blue-400 pl-4 bg-blue-50/30 p-2 rounded opacity-75">
                                                 <Label className="text-muted-foreground">Revenue Target</Label>
                                                 <div className="text-xl font-bold text-slate-700">{formatINR(form.watch('target_monthly_revenue') || 0)}</div>
-                                                <p className="text-xs text-muted-foreground">Same Goal, Better Efficiency</p>
+                                                <p className="text-xs text-muted-foreground">Same Goal</p>
                                             </div>
 
                                             <div className="space-y-1 border-l-4 border-amber-400 pl-4 bg-amber-50/30 p-2 rounded">
@@ -518,6 +518,17 @@ export function SalesDataForm({ prospect, onUpdate }: SalesDataFormProps) {
                                                 </div>
                                                 <p className="text-xs text-success-foreground font-medium">
                                                     Save {formatINR(Math.max(0, calculatedStats.adSpendRequiredWithBuffer - calculatedStats.scenarioAdSpend))}
+                                                </p>
+                                            </div>
+
+                                            <div className="space-y-1 border-l-4 border-purple-400 pl-4 bg-purple-50/30 p-2 rounded">
+                                                <Label className="text-muted-foreground">Cost Per Attendee</Label>
+                                                <div className="flex items-baseline gap-2">
+                                                    <div className="text-xl font-bold text-purple-700">{formatINR(calculatedStats.scenarioCostPerAttendee)}</div>
+                                                    <span className="text-xs text-muted-foreground line-through opacity-50">{formatINR(calculatedStats.costPerAttendee)}</span>
+                                                </div>
+                                                <p className="text-xs text-success-foreground font-medium">
+                                                    Improved from {formatINR(calculatedStats.costPerAttendee)}
                                                 </p>
                                             </div>
 
