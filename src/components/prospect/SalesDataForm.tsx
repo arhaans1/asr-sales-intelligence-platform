@@ -69,7 +69,7 @@ export function SalesDataForm({ prospect, onUpdate }: SalesDataFormProps) {
         },
     });
 
-    const values = form.watch();
+
 
     useEffect(() => {
         loadSessionData();
@@ -117,35 +117,55 @@ export function SalesDataForm({ prospect, onUpdate }: SalesDataFormProps) {
         const targetRev = Number(data.target_monthly_revenue) || 0;
         const adSpend = Number(data.monthly_ad_spend) || 0;
 
+        // Prices
+        const l1 = Number(data.l1_price) || 0;
+        const l2 = Number(data.l2_price) || 0;
+        const l3 = Number(data.l3_price) || 0;
+
         // 1. Attendance Rate
         const attendanceRate = totalLeads > 0 ? (totalCalls / totalLeads) : 0;
 
         // 2. Sales Conversion Rate (Sales / Attendees)
         const salesConvRate = totalCalls > 0 ? (totalSales / totalCalls) : 0;
 
-        // AOV (Derived)
-        // If no sales yet, use L1 Price as fallback AOV
-        let aov = totalSales > 0 ? currentRev / totalSales : 0;
-        if (aov === 0) {
-            aov = Number(data.l1_price) || 0;
-        }
+        // New Metrics
+        const costPerLead = totalLeads > 0 ? adSpend / totalLeads : 0;
+        const costPerAttendee = totalCalls > 0 ? adSpend / totalCalls : 0;
 
-        // 3. Sales needed to hit target
-        const salesNeededForTarget = (aov > 0 && targetRev > 0) ? Math.ceil(targetRev / aov) : 0;
+        // "Effective Value" Calculation (Upsell Logic)
+        // Base = L1. If L2 exists, +10% of L2. If L3 exists, +1% of L3.
+        let effectiveValue = l1;
+        if (l2 > 0) effectiveValue += (l2 * 0.10);
+        if (l3 > 0) effectiveValue += (l3 * 0.01);
+
+        // AOV for historical data (fallback to effectiveValue if 0)
+        let aov = totalSales > 0 ? currentRev / totalSales : 0;
+        if (aov === 0) aov = effectiveValue;
+
+        // 3. Sales needed to hit target (Using Effective Value for projection)
+        // detailed logic: Target / EffectiveValue per customer
+        const salesNeededForTarget = effectiveValue > 0 ? Math.ceil(targetRev / effectiveValue) : 0;
 
         // 4. Ad Spend Required
-        // CPA = AdSpend / Sales
-        // If no sales, calculate estimated CPA from CPL and assumed conversion (e.g. 10% from calls, or 5% from leads)
+        // CPA Logic: If we have historical CPA, use it. Else estimate.
         let cpa = totalSales > 0 ? adSpend / totalSales : 0;
 
-        if (cpa === 0 && totalLeads > 0 && adSpend > 0) {
-            const cpl = adSpend / totalLeads;
-            // Fallback conversion: use calculated rate if > 0, else assume 5% (0.05) overall lead-to-sale
-            const projectedLeadToSale = (attendanceRate > 0 && salesConvRate > 0)
-                ? (attendanceRate * salesConvRate)
-                : 0.05; // Default 5% funnel conversion if no data
+        if (cpa === 0 && effectiveValue > 0) {
+            // Est. CPA = Est. CPL / Est. Conv
+            // If we have CPL, use it. Else assume CPL is roughly 10% of L1 (heuristic) or 0.
+            let estCpl = costPerLead > 0 ? costPerLead : 0;
 
-            cpa = cpl / projectedLeadToSale;
+            // If no CPL data, we can't really guess perfectly, but let's try:
+            if (estCpl === 0 && adSpend > 0 && totalLeads > 0) estCpl = adSpend / totalLeads;
+
+            // Conversion: Use actual if exists, else 5% (0.05) default
+            const estConv = (attendanceRate > 0 && salesConvRate > 0)
+                ? (attendanceRate * salesConvRate)
+                : 0.05;
+
+            if (estCpl > 0) {
+                cpa = estCpl / estConv;
+            }
         }
 
         const adSpendRequiredRaw = salesNeededForTarget * cpa;
@@ -153,24 +173,20 @@ export function SalesDataForm({ prospect, onUpdate }: SalesDataFormProps) {
 
         // 5. 50% Attendance Rate Scenario
         let scenarioAdSpend = 0;
-        let scenarioSalesNeeded = salesNeededForTarget;
 
-        if (attendanceRate < 0.5 && aov > 0) {
-            // Scenario: 50% of leads show up.
-            // Assumption: Sales Conversion Rate (Attendee -> Sale) stays same.
-
+        if (attendanceRate < 0.5 && effectiveValue > 0) {
+            // Scenario: 50% attendance, same conversion rate
             const targetAttendance = 0.5;
-            const currentConv = salesConvRate > 0 ? salesConvRate : 0.1; // fallback 10% close rate
+            const currentConv = salesConvRate > 0 ? salesConvRate : 0.1;
 
-            // Leads needed = Sales / (0.5 * Conv)
-            const leadsNeededScenario = scenarioSalesNeeded / (targetAttendance * currentConv);
+            // L1 Sales Needed stays same (based on Revenue Target)
+            // Leads = Sales / (0.5 * Conv)
+            const leadsNeededScenario = salesNeededForTarget / (targetAttendance * currentConv);
 
-            // CPL stays same
-            const cpl = totalLeads > 0 ? adSpend / totalLeads : (adSpend > 0 ? (adSpend / (totalLeads || 1)) : 0);
+            const cpl = costPerLead > 0 ? costPerLead : 0;
 
             if (cpl > 0) {
-                const adSpendRawScenario = leadsNeededScenario * cpl;
-                scenarioAdSpend = adSpendRawScenario * 1.2;
+                scenarioAdSpend = (leadsNeededScenario * cpl) * 1.2;
             }
         } else {
             scenarioAdSpend = adSpendRequiredWithBuffer;
@@ -179,9 +195,12 @@ export function SalesDataForm({ prospect, onUpdate }: SalesDataFormProps) {
         setCalculatedStats({
             attendanceRate,
             salesConvRate,
+            costPerLead,
+            costPerAttendee,
             salesNeededForTarget,
             adSpendRequiredWithBuffer,
             scenarioAdSpend,
+            effectiveValue,
             isLowAttendance: attendanceRate < 0.5 && attendanceRate >= 0
         });
     };
@@ -291,71 +310,65 @@ export function SalesDataForm({ prospect, onUpdate }: SalesDataFormProps) {
                             <Textarea {...form.register('better_different')} />
                         </div>
 
-                        {/* 8. Charge Amount */}
-                        <div className="grid gap-2">
-                            <Label>8. How much do you charge?</Label>
-                            <Input {...form.register('charge_amount')} placeholder="e.g. 5000 - 10000" />
-                        </div>
-
-                        {/* 9-11. Prices */}
+                        {/* 8-10. Prices (Renumbred) */}
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div className="grid gap-2">
-                                <Label>9. L1 Price</Label>
+                                <Label>8. L1 Price</Label>
                                 <Input type="number" {...form.register('l1_price')} />
                             </div>
                             <div className="grid gap-2">
-                                <Label>10. L2 Price</Label>
+                                <Label>9. L2 Price</Label>
                                 <Input type="number" {...form.register('l2_price')} />
                             </div>
                             <div className="grid gap-2">
-                                <Label>11. L3 Price</Label>
+                                <Label>10. L3 Price</Label>
                                 <Input type="number" {...form.register('l3_price')} />
                             </div>
                         </div>
 
-                        {/* 12. Funnel */}
+                        {/* 11. Funnel */}
                         <div className="grid gap-2">
-                            <Label>12. Your current funnel? (Webinar, Workshop, 1-1 HT)</Label>
+                            <Label>11. Your current funnel? (Webinar, Workshop, 1-1 HT)</Label>
                             <Input {...form.register('current_funnel')} />
                         </div>
 
-                        {/* 13. Ad Spend */}
+                        {/* 12. Ad Spend */}
                         <div className="grid gap-2">
-                            <Label>13. Monthly Ad Spend (₹)</Label>
+                            <Label>12. Monthly Ad Spend (₹)</Label>
                             <Input type="number" {...form.register('monthly_ad_spend')} />
                         </div>
 
-                        {/* 14-16. Funnel Stats */}
+                        {/* 13-15. Funnel Stats */}
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div className="grid gap-2">
-                                <Label>14. Total leads/registrations</Label>
+                                <Label>13. Total leads/registrations</Label>
                                 <Input type="number" {...form.register('total_leads')} />
                             </div>
                             <div className="grid gap-2">
-                                <Label>15. Total calls/attendees</Label>
+                                <Label>14. Total calls/attendees</Label>
                                 <Input type="number" {...form.register('total_calls')} />
                             </div>
                             <div className="grid gap-2">
-                                <Label>16. Total sales</Label>
+                                <Label>15. Total sales</Label>
                                 <Input type="number" {...form.register('total_sales')} />
                             </div>
                         </div>
 
-                        {/* 17. Current Revenue */}
+                        {/* 16. Current Revenue */}
                         <div className="grid gap-2">
-                            <Label>17. Current monthly revenue (₹)</Label>
+                            <Label>16. Current monthly revenue (₹)</Label>
                             <Input type="number" {...form.register('current_monthly_revenue')} />
                         </div>
 
-                        {/* 18. Target Revenue */}
+                        {/* 17. Target Revenue */}
                         <div className="grid gap-2">
-                            <Label>18. Target monthly revenue (₹)</Label>
+                            <Label>17. Target monthly revenue (₹)</Label>
                             <Input type="number" {...form.register('target_monthly_revenue')} />
                         </div>
 
-                        {/* 19. Biggest Blocker */}
+                        {/* 18. Biggest Blocker */}
                         <div className="grid gap-2">
-                            <Label>19. Biggest blocker in your opinion</Label>
+                            <Label>18. Biggest blocker in your opinion</Label>
                             <Textarea {...form.register('biggest_blocker')} />
                         </div>
                     </CardContent>
@@ -371,27 +384,45 @@ export function SalesDataForm({ prospect, onUpdate }: SalesDataFormProps) {
                             </div>
                         </CardHeader>
                         <CardContent className="space-y-4">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                                 <div className="space-y-1">
-                                    <Label className="text-muted-foreground">1. Current Attendance Rate</Label>
+                                    <Label className="text-muted-foreground">Attendance Rate</Label>
                                     <div className="text-2xl font-bold">{(calculatedStats.attendanceRate * 100).toFixed(1)}%</div>
                                     <p className="text-xs text-muted-foreground">Registrations to Attendees</p>
                                 </div>
 
                                 <div className="space-y-1">
-                                    <Label className="text-muted-foreground">2. Sales Conversion Rate</Label>
+                                    <Label className="text-muted-foreground">Sales Conversion</Label>
                                     <div className="text-2xl font-bold">{(calculatedStats.salesConvRate * 100).toFixed(1)}%</div>
                                     <p className="text-xs text-muted-foreground">Attendees to Sales</p>
                                 </div>
 
                                 <div className="space-y-1">
-                                    <Label className="text-muted-foreground">3. Sales Needed for Target</Label>
-                                    <div className="text-2xl font-bold">{calculatedStats.salesNeededForTarget}</div>
-                                    <p className="text-xs text-muted-foreground">To hit {formatINR(values.target_monthly_revenue || 0)}</p>
+                                    <Label className="text-muted-foreground">Cost Per Lead (CPL)</Label>
+                                    <div className="text-2xl font-bold">{formatINR(calculatedStats.costPerLead)}</div>
+                                    <p className="text-xs text-muted-foreground">Ad Spend / Leads</p>
                                 </div>
 
                                 <div className="space-y-1">
-                                    <Label className="text-muted-foreground">4. Required Ad Spend</Label>
+                                    <Label className="text-muted-foreground">Cost Per Attendee</Label>
+                                    <div className="text-2xl font-bold">{formatINR(calculatedStats.costPerAttendee)}</div>
+                                    <p className="text-xs text-muted-foreground">Ad Spend / Attendees</p>
+                                </div>
+                            </div>
+
+                            <Separator />
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div className="space-y-1">
+                                    <Label className="text-muted-foreground">L1 Sales Needed For Target</Label>
+                                    <div className="text-2xl font-bold">{calculatedStats.salesNeededForTarget}</div>
+                                    <p className="text-xs text-muted-foreground">
+                                        Based on Effective Value of {formatINR(calculatedStats.effectiveValue)} (L1 + Upsells)
+                                    </p>
+                                </div>
+
+                                <div className="space-y-1">
+                                    <Label className="text-muted-foreground">Required Ad Spend</Label>
                                     <div className="text-2xl font-bold">{formatINR(calculatedStats.adSpendRequiredWithBuffer)}</div>
                                     <p className="text-xs text-muted-foreground">Includes 20% buffer</p>
                                 </div>
@@ -410,7 +441,7 @@ export function SalesDataForm({ prospect, onUpdate }: SalesDataFormProps) {
                                                     <span className="text-sm text-muted-foreground line-through">{formatINR(calculatedStats.adSpendRequiredWithBuffer)}</span>
                                                 </div>
                                                 <p className="text-xs text-muted-foreground">
-                                                    You would save {formatINR(Math.max(0, calculatedStats.adSpendRequiredWithBuffer - calculatedStats.scenarioAdSpend))} by improving attendance to 50%
+                                                    You would save {formatINR(Math.max(0, calculatedStats.adSpendRequiredWithBuffer - calculatedStats.scenarioAdSpend))}
                                                 </p>
                                             </div>
                                         </div>
@@ -437,22 +468,6 @@ export function SalesDataForm({ prospect, onUpdate }: SalesDataFormProps) {
                     </Button>
                 </div>
             </form>
-
-            <Card className="bg-slate-100 mt-8 border-dashed">
-                <CardHeader>
-                    <CardTitle className="text-sm font-mono text-slate-500">Debug Info (Temporary)</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <div className="space-y-2">
-                        <Label className="text-xs font-mono text-slate-500">Session ID: {sessionId || 'None'}</Label>
-                        <Separator />
-                        <Label className="text-xs font-mono text-slate-500">Last Loaded Data (DB):</Label>
-                        <pre className="text-xs bg-white p-2 rounded border overflow-auto max-h-40">
-                            {JSON.stringify(form.getValues(), null, 2)}
-                        </pre>
-                    </div>
-                </CardContent>
-            </Card>
         </div>
     );
 }
