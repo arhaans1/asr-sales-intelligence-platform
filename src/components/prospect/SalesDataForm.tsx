@@ -1,0 +1,393 @@
+import { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import { sessionsApi, prospectsApi } from '@/services/api';
+import type { Prospect } from '@/types/database';
+import { toast } from 'sonner';
+import { Loader2, Calculator } from 'lucide-react';
+import { formatINR } from '@/lib/utils';
+import { Separator } from '@/components/ui/separator';
+
+interface SalesDataFormProps {
+    prospect: Prospect;
+    onUpdate: () => void;
+}
+
+interface QuestionnaireData {
+    // Questions 1-19
+    business_name: string;
+    who_do_you_help: string;
+    how_do_you_help: string;
+    why_this: string;
+    customers_served: string;
+    competitors: string;
+    better_different: string;
+    charge_amount: string; // "How much do you charge?"
+    l1_price: number;
+    l2_price: number;
+    l3_price: number;
+    current_funnel: string;
+    monthly_ad_spend: number;
+    total_leads: number; // registrations
+    total_calls: number; // attendees
+    total_sales: number;
+    current_monthly_revenue: number; // Also on prospect
+    target_monthly_revenue: number; // Also on prospect
+    biggest_blocker: string;
+}
+
+export function SalesDataForm({ prospect, onUpdate }: SalesDataFormProps) {
+    const [loading, setLoading] = useState(false);
+    const [sessionId, setSessionId] = useState<string | null>(null);
+
+    const form = useForm<QuestionnaireData>({
+        defaultValues: {
+            business_name: prospect.business_name || '',
+            who_do_you_help: '',
+            how_do_you_help: '',
+            why_this: '',
+            customers_served: '',
+            competitors: '',
+            better_different: '',
+            charge_amount: '',
+            l1_price: 0,
+            l2_price: 0,
+            l3_price: 0,
+            current_funnel: '',
+            monthly_ad_spend: 0,
+            total_leads: 0,
+            total_calls: 0,
+            total_sales: 0,
+            current_monthly_revenue: prospect.current_monthly_revenue || 0,
+            target_monthly_revenue: prospect.target_monthly_revenue || 0,
+            biggest_blocker: '',
+        },
+    });
+
+    // Watch fields for calculations
+    const values = form.watch();
+
+    useEffect(() => {
+        loadSessionData();
+    }, [prospect.id]);
+
+    const loadSessionData = async () => {
+        try {
+            // Find existing 'General Data' session or create one
+            const sessions = await sessionsApi.getByProspectId(prospect.id);
+            const dataSession = sessions.find(s => s.session_name === 'General Data');
+
+            if (dataSession) {
+                setSessionId(dataSession.id);
+                if (dataSession.session_data) {
+                    const data = dataSession.session_data as any;
+                    // Merge with current prospect data (prospect data takes precedence for shared fields)
+                    form.reset({
+                        ...data,
+                        business_name: prospect.business_name,
+                        current_monthly_revenue: prospect.current_monthly_revenue,
+                        target_monthly_revenue: prospect.target_monthly_revenue,
+                    });
+                }
+            } else {
+                // We will create one on save
+            }
+        } catch (error) {
+            console.error('Error loading session data:', error);
+        }
+    };
+
+    const onSubmit = async (data: QuestionnaireData) => {
+        setLoading(true);
+        try {
+            // 1. Update Prospect Table fields
+            await prospectsApi.update(prospect.id, {
+                business_name: data.business_name,
+                current_monthly_revenue: data.current_monthly_revenue,
+                target_monthly_revenue: data.target_monthly_revenue,
+            });
+
+            // 2. Save full data to Session
+            const sessionData = {
+                prospect_id: prospect.id,
+                session_name: 'General Data',
+                session_data: data as unknown as Record<string, unknown>,
+            };
+
+            if (sessionId) {
+                await sessionsApi.update(sessionId, sessionData);
+            } else {
+                const newSession = await sessionsApi.create({
+                    ...sessionData,
+                    funnel_id: null,
+                });
+                setSessionId(newSession.id);
+            }
+
+            toast.success('Data saved successfully');
+            onUpdate();
+        } catch (error) {
+            console.error('Error saving data:', error);
+            toast.error('Failed to save data');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Calculations
+    const calculateStats = () => {
+        const totalLeads = Number(values.total_leads) || 0;
+        const totalCalls = Number(values.total_calls) || 0;
+        const totalSales = Number(values.total_sales) || 0;
+        const currentRev = Number(values.current_monthly_revenue) || 0;
+        const targetRev = Number(values.target_monthly_revenue) || 0;
+        const adSpend = Number(values.monthly_ad_spend) || 0;
+
+        // 1. Attendance Rate
+        const attendanceRate = totalLeads > 0 ? (totalCalls / totalLeads) : 0;
+
+        // 2. Sales Conversion Rate (Sales / Attendees)
+        const salesConvRate = totalCalls > 0 ? (totalSales / totalCalls) : 0;
+
+        // AOV (Derived)
+        const aov = totalSales > 0 ? currentRev / totalSales : 0;
+
+        // 3. Sales needed to hit target
+        // If AOV is 0, we can't project.
+        const salesNeededForTarget = aov > 0 ? Math.ceil(targetRev / aov) : 0;
+
+        // 4. Ad Spend Required
+        // CPA = AdSpend / Sales
+        const cpa = totalSales > 0 ? adSpend / totalSales : 0;
+        const adSpendRequiredRaw = salesNeededForTarget * cpa;
+        const adSpendRequiredWithBuffer = adSpendRequiredRaw * 1.2; // 20% buffer
+
+        // 5. 50% Attendance Rate Scenario
+        // Metric: If attendance rate was 0.5 (or higher if it already is, but request says "if their current... is less than 50%")
+        // Let's assume we want to solve for "Ad Spend Saved" or "Sales Potential"?
+        // "Calculate same stats numbers based on 50% attendance rate"
+        // This implies: "How much ad spend required if attendance was 50%?"
+
+        let scenarioAdSpend = 0;
+        let scenarioSalesNeeded = salesNeededForTarget; // Same sales target
+
+        if (attendanceRate < 0.5 && aov > 0 && salesConvRate > 0) {
+            // With 50% attendance:
+            // Sales = Leads * 0.5 * ConvRate
+            // Leads Needed = Sales / (0.5 * ConvRate)
+            const targetScenarioRate = 0.5;
+            const leadsNeededScenario = scenarioSalesNeeded / (targetScenarioRate * salesConvRate);
+
+            // CPL (Cost Per Lead)
+            const cpl = totalLeads > 0 ? adSpend / totalLeads : 0;
+
+            const adSpendRawScenario = leadsNeededScenario * cpl;
+            scenarioAdSpend = adSpendRawScenario * 1.2; // Buffer
+        } else {
+            scenarioAdSpend = adSpendRequiredWithBuffer; // No change if already good
+        }
+
+        return {
+            attendanceRate,
+            salesConvRate,
+            salesNeededForTarget,
+            adSpendRequiredWithBuffer,
+            scenarioAdSpend,
+            isLowAttendance: attendanceRate < 0.5
+        };
+    };
+
+    const stats = calculateStats();
+
+    return (
+        <div className="space-y-6">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Sales Questions</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        {/* 1. Business Name */}
+                        <div className="grid gap-2">
+                            <Label>1. Business Name</Label>
+                            <Input {...form.register('business_name')} />
+                        </div>
+
+                        {/* 2. Who do you help? */}
+                        <div className="grid gap-2">
+                            <Label>2. Who do you help?</Label>
+                            <Input {...form.register('who_do_you_help')} />
+                        </div>
+
+                        {/* 3. How do you help? */}
+                        <div className="grid gap-2">
+                            <Label>3. How do you help?</Label>
+                            <Input {...form.register('how_do_you_help')} />
+                        </div>
+
+                        {/* 4. Why this? */}
+                        <div className="grid gap-2">
+                            <Label>4. Why this? and how did you get into this?</Label>
+                            <Textarea {...form.register('why_this')} />
+                        </div>
+
+                        {/* 5. Customers served */}
+                        <div className="grid gap-2">
+                            <Label>5. How many customers have you served so far?</Label>
+                            <Input {...form.register('customers_served')} />
+                        </div>
+
+                        {/* 6. Competitors */}
+                        <div className="grid gap-2">
+                            <Label>6. Name top 3 competitors</Label>
+                            <Input {...form.register('competitors')} />
+                        </div>
+
+                        {/* 7. Better/Different */}
+                        <div className="grid gap-2">
+                            <Label>7. How are you better/different from them?</Label>
+                            <Textarea {...form.register('better_different')} />
+                        </div>
+
+                        {/* 8. Charge Amount */}
+                        <div className="grid gap-2">
+                            <Label>8. How much do you charge?</Label>
+                            <Input {...form.register('charge_amount')} placeholder="e.g. 5000 - 10000" />
+                        </div>
+
+                        {/* 9-11. Prices */}
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div className="grid gap-2">
+                                <Label>9. L1 Price</Label>
+                                <Input type="number" {...form.register('l1_price')} />
+                            </div>
+                            <div className="grid gap-2">
+                                <Label>10. L2 Price</Label>
+                                <Input type="number" {...form.register('l2_price')} />
+                            </div>
+                            <div className="grid gap-2">
+                                <Label>11. L3 Price</Label>
+                                <Input type="number" {...form.register('l3_price')} />
+                            </div>
+                        </div>
+
+                        {/* 12. Funnel */}
+                        <div className="grid gap-2">
+                            <Label>12. Your current funnel? (Webinar, Workshop, 1-1 HT)</Label>
+                            <Input {...form.register('current_funnel')} />
+                        </div>
+
+                        {/* 13. Ad Spend */}
+                        <div className="grid gap-2">
+                            <Label>13. Monthly Ad Spend (₹)</Label>
+                            <Input type="number" {...form.register('monthly_ad_spend')} />
+                        </div>
+
+                        {/* 14-16. Funnel Stats */}
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div className="grid gap-2">
+                                <Label>14. Total leads/registrations</Label>
+                                <Input type="number" {...form.register('total_leads')} />
+                            </div>
+                            <div className="grid gap-2">
+                                <Label>15. Total calls/attendees</Label>
+                                <Input type="number" {...form.register('total_calls')} />
+                            </div>
+                            <div className="grid gap-2">
+                                <Label>16. Total sales</Label>
+                                <Input type="number" {...form.register('total_sales')} />
+                            </div>
+                        </div>
+
+                        {/* 17. Current Revenue */}
+                        <div className="grid gap-2">
+                            <Label>17. Current monthly revenue (₹)</Label>
+                            <Input type="number" {...form.register('current_monthly_revenue')} />
+                        </div>
+
+                        {/* 18. Target Revenue */}
+                        <div className="grid gap-2">
+                            <Label>18. Target monthly revenue (₹)</Label>
+                            <Input type="number" {...form.register('target_monthly_revenue')} />
+                        </div>
+
+                        {/* 19. Biggest Blocker */}
+                        <div className="grid gap-2">
+                            <Label>19. Biggest blocker in your opinion</Label>
+                            <Textarea {...form.register('biggest_blocker')} />
+                        </div>
+                    </CardContent>
+                </Card>
+
+                {/* Calculations Section */}
+                <Card className="bg-muted/50">
+                    <CardHeader>
+                        <div className="flex items-center gap-2">
+                            <Calculator className="h-5 w-5 text-primary" />
+                            <CardTitle>Auto Calculations</CardTitle>
+                        </div>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="space-y-1">
+                                <Label className="text-muted-foreground">1. Current Attendance Rate</Label>
+                                <div className="text-2xl font-bold">{(stats.attendanceRate * 100).toFixed(1)}%</div>
+                                <p className="text-xs text-muted-foreground">Registrations to Attendees</p>
+                            </div>
+
+                            <div className="space-y-1">
+                                <Label className="text-muted-foreground">2. Sales Conversion Rate</Label>
+                                <div className="text-2xl font-bold">{(stats.salesConvRate * 100).toFixed(1)}%</div>
+                                <p className="text-xs text-muted-foreground">Attendees to Sales</p>
+                            </div>
+
+                            <div className="space-y-1">
+                                <Label className="text-muted-foreground">3. Sales Needed for Target</Label>
+                                <div className="text-2xl font-bold">{stats.salesNeededForTarget}</div>
+                                <p className="text-xs text-muted-foreground">To hit {formatINR(values.target_monthly_revenue)}</p>
+                            </div>
+
+                            <div className="space-y-1">
+                                <Label className="text-muted-foreground">4. Required Ad Spend</Label>
+                                <div className="text-2xl font-bold">{formatINR(stats.adSpendRequiredWithBuffer)}</div>
+                                <p className="text-xs text-muted-foreground">Includes 20% buffer</p>
+                            </div>
+                        </div>
+
+                        {stats.isLowAttendance && (
+                            <>
+                                <Separator />
+                                <div>
+                                    <h4 className="font-semibold mb-4 text-primary">SCENARIO: If Attendance Rate was 50%</h4>
+                                    <div className="grid grid-cols-1 gap-6">
+                                        <div className="space-y-1">
+                                            <Label className="text-muted-foreground">Required Ad Spend (at 50% attendance)</Label>
+                                            <div className="flex items-baseline gap-2">
+                                                <div className="text-2xl font-bold text-success-foreground">{formatINR(stats.scenarioAdSpend)}</div>
+                                                <span className="text-sm text-muted-foreground line-through">{formatINR(stats.adSpendRequiredWithBuffer)}</span>
+                                            </div>
+                                            <p className="text-xs text-muted-foreground">
+                                                You would save {formatINR(Math.max(0, stats.adSpendRequiredWithBuffer - stats.scenarioAdSpend))} by improving attendance to 50%
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </>
+                        )}
+                    </CardContent>
+                </Card>
+
+                <div className="flex justify-end">
+                    <Button type="submit" size="lg" disabled={loading}>
+                        {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                        Save Data
+                    </Button>
+                </div>
+            </form>
+        </div>
+    );
+}
